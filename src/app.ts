@@ -75,7 +75,7 @@ export async function executar() {
     }
   }
   await browser.close()
-  await gerarRelatorio(associados, naoAssociados)
+  await gerarRelatorio({ associados, naoAssociados })
   print('Relatório gerado!')
   print('Execução Finalizada')
 }
@@ -83,7 +83,7 @@ export async function executar() {
 try {
   await executar()
 } catch (error) {
-  console.error(error)
-  await gerarRelatorio(associados, naoAssociados)
+  await gerarRelatorio({ associados, naoAssociados })
   print('Relatório parcial gerado!')
+  throw error
 }
