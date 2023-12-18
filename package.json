@@ -1,0 +1,22 @@
+{
+  "name": "sambanet-associate",
+  "version": "1.0.0",
+  "main": "src/app.ts",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "ts-node src/app.ts",
+    "dev": "nodemon -e ts,json --exec yarn start"
+  },
+  "dependencies": {
+    "puppeteer": "^21.4.1",
+    "remove": "^0.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "dotenv": "^16.3.1",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
