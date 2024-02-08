@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "ts-node src/app.ts",
-    "dev": "nodemon -e ts,json --exec npm start",
+    "dev": "nodemon -e ts,json --exec npm start"
   },
   "dependencies": {
     "puppeteer": "^21.4.1",
