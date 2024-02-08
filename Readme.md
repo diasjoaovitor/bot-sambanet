@@ -51,13 +51,13 @@ Instalação das dependências internas
 
 ```
 cd sambanet-associate
-yarn
+npm i
 ```
 
 Execução
 
 ```
-yarn start
+npm start
 ```
 
 ![Preview](./.github/images/preview.gif)
