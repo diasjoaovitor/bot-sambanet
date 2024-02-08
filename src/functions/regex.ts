@@ -1,8 +1,8 @@
 export function obterEstoqueURL(html: string) {
-  const resultado = html.match(/(?<=href=")https:\/\/www.sambanet.net.br\/sambanet\/estoque.+(?=" target.+demonstrativos2)/)
+  const resultado = html.match(/(?<=href=")https:\/\/www.sambanet.net.br\/sambanet\/estoque.+(?===".+demo)/)
   if (!resultado) return null
   const [url] = resultado
-  return url
+  return url + '=='
 }
 
 export function obterEntradaNfURL(html: string) {

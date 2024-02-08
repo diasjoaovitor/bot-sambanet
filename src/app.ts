@@ -1,89 +1,64 @@
 import { 
-  associarProduto, 
   buscarNotasPendentes, 
-  gerarRelatorio, 
+  finalizar, 
   iniciar, 
   login, 
   navegarParaEntradaNF, 
   navegarParaEstoque, 
-  navegarParaItensDaNF, 
+  navegarParaProximaPagina, 
+  obterEntradaNfURL, 
+  obterEstoqueURL, 
   obterNotasPendentes, 
-  obterProdutosNaoAssociados, 
-  print, 
+  realizarAcoes, 
   selecionarQuantidadeDeItensPagina 
 } from './functions'
-import { TProduto } from './types'
+import { logger } from './logger-config'
 
-const associados: TProduto[] = []
-const naoAssociados: TProduto[] = []
+(async () => {
+  let { browser, pagina } = await iniciar() 
+  try {
+    const dashboard = await login(pagina, browser)
+    if (!dashboard) return
 
-export async function executar() {
-  print('Iniciando...')
-  const { pagina, browser } = await iniciar()
-  print(`Login [${pagina.url()}]`)
+    const dashboardHTML = await dashboard.content()
+    const estoqueURL = obterEstoqueURL(dashboardHTML)
+    if (!estoqueURL) throw 'URL de Estoque não encontrada!'
 
-  const { dashboard, dashboardURL } = await login(pagina, browser)
-  print(`Dashboard [${dashboardURL}]`)
+    const estoque = await navegarParaEstoque(browser, estoqueURL)
+    if (!estoque) return
 
-  const { estoque, estoqueURL } = await navegarParaEstoque(dashboard, browser)
-  print(`Estoque [${estoqueURL}]`)
+    const estoqueHTML = await estoque.content()
+    const entradaNfURL = obterEntradaNfURL(estoqueHTML)
+    if (!entradaNfURL) throw 'URL de Entrada NF não encontrada!'
 
-  const { entradaNF, entradaNfURL } = await navegarParaEntradaNF(estoque, browser)
-  print(`Entrada NF [${entradaNfURL}]`)
+    const entradaNF = await navegarParaEntradaNF(browser, entradaNfURL)
+    if (!entradaNF) return
 
-  await buscarNotasPendentes(entradaNF)
-  print('Pendentes Para Entrada')
+    const rBuscarNotasPendentes = await buscarNotasPendentes(entradaNF)
+    if (!rBuscarNotasPendentes) return
 
-  await selecionarQuantidadeDeItensPagina(entradaNF)
+    const rSelecionarQuantidadeDeItensPagina = await selecionarQuantidadeDeItensPagina(entradaNF)
+    if (!rSelecionarQuantidadeDeItensPagina) return
 
-  const { nfs } = await obterNotasPendentes(entradaNF)
-  const quantidadeDeNotasPendentes = nfs.length
-  print(`Quantidade de notas pendentes: ${nfs.length}`)
+    const rObterNotasPendentes = await obterNotasPendentes(entradaNF)
+    if (!rObterNotasPendentes) return
 
-  for (let i = 0; i < quantidadeDeNotasPendentes; i++) {
-    const { descricao, codigo } = nfs[i]
-    print(`${(i + 1)}  - ${descricao}`)
-    const { itensNf, itensNfURL } = await navegarParaItensDaNF(codigo, browser)
-
-    print(`Itens da Nota Fiscal [${itensNfURL}]`)
-    await selecionarQuantidadeDeItensPagina(itensNf)
-    const produtosNaoAssociados = await obterProdutosNaoAssociados(itensNf)
-    const quantidadeDeProdutosNaoAssociados = produtosNaoAssociados.length
-
-    if (quantidadeDeProdutosNaoAssociados === 0) {
-      print('Todos os produtos já foram associados')
-      continue
+    const { nfs: n, proximaPaginaId: id } = rObterNotasPendentes
+    const nfs = [ ...n ]
+    let proximaPaginaId = id
+    while (proximaPaginaId) {
+      const rNavegarParaProximaPagina = await navegarParaProximaPagina(entradaNF, proximaPaginaId)
+      if (!rNavegarParaProximaPagina) break
+      const rObterNotasPendentes = await obterNotasPendentes(entradaNF)
+      if (!rObterNotasPendentes) break
+      const { nfs: n, proximaPaginaId: id } = rObterNotasPendentes
+      nfs.push(...n)
+      proximaPaginaId = id
     }
-
-    print(`Quantidade de produtos não associados: ${quantidadeDeProdutosNaoAssociados}`)
-    for (let j = 0; j < quantidadeDeProdutosNaoAssociados; j++) {
-      const produto = produtosNaoAssociados[j]
-      const { nome, barraXML } = produto
-      print(`${j + 1} - ${nome} - ${barraXML}`)
-      const foiAssociado = await associarProduto(produto, itensNfURL, browser)
-      const p = {
-        nf: descricao,
-        produto: `${nome} - ${barraXML}`
-      }
-      if (foiAssociado ) {
-        print('Produto associado!')
-        associados.push(p)
-      } else {
-        print('Não foi possível associar o produto!')
-        naoAssociados.push(p)
-      }
-    }
+    browser = await realizarAcoes(nfs, browser)
+  } catch (error) {
+    logger.info(error)
+  } finally {
+    finalizar(browser)
   }
-  await browser.close()
-  await gerarRelatorio({ associados, naoAssociados })
-  print('Relatório gerado!')
-  print('Execução Finalizada')
-}
-
-try {
-  await executar()
-} catch (error) {
-  await gerarRelatorio({ associados, naoAssociados })
-  print('Relatório parcial gerado!')
-  throw error
-}
+})()
