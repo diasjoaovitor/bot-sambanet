@@ -1,61 +1,28 @@
+import { Browser } from 'puppeteer'
 import { 
-  buscarNotasPendentes, 
-  finalizar, 
-  iniciar, 
-  login, 
-  navegarParaEntradaNF, 
-  navegarParaEstoque, 
-  navegarParaProximaPagina, 
-  obterEntradaNfURL, 
-  obterEstoqueURL, 
-  obterNotasPendentes, 
+  finalizar,
+  obterTodasAsNotasPendentes, 
   realizarAcoes, 
-  selecionarQuantidadeDeItensPagina 
+  realizarLoginENavegarParaEstoque
 } from './functions'
 import { logger } from './logger-config'
 
 (async () => {
-  let { browser, pagina } = await iniciar() 
+  let browser: Browser
   try {
-    const dashboard = await login(pagina, browser)
-    if (!dashboard) return
+    const { estoque, browser: b }  = await realizarLoginENavegarParaEstoque()
+    browser = b
 
-    const dashboardHTML = await dashboard.content()
-    const estoqueURL = obterEstoqueURL(dashboardHTML)
-    if (!estoqueURL) throw 'URL de Estoque não encontrada!'
+    const { browser: b2, nfs } = await obterTodasAsNotasPendentes(estoque, browser)
+    browser = b2
 
-    const estoque = await navegarParaEstoque(browser, estoqueURL)
-    if (!estoque) return
-
-    const estoqueHTML = await estoque.content()
-    const entradaNfURL = obterEntradaNfURL(estoqueHTML)
-    if (!entradaNfURL) throw 'URL de Entrada NF não encontrada!'
-
-    const entradaNF = await navegarParaEntradaNF(browser, entradaNfURL)
-    if (!entradaNF) return
-
-    const rBuscarNotasPendentes = await buscarNotasPendentes(entradaNF)
-    if (!rBuscarNotasPendentes) return
-
-    const rSelecionarQuantidadeDeItensPagina = await selecionarQuantidadeDeItensPagina(entradaNF)
-    if (!rSelecionarQuantidadeDeItensPagina) return
-
-    const rObterNotasPendentes = await obterNotasPendentes(entradaNF)
-    if (!rObterNotasPendentes) return
-
-    const { nfs: n, proximaPaginaId: id } = rObterNotasPendentes
-    const nfs = [ ...n ]
-    let proximaPaginaId = id
-    while (proximaPaginaId) {
-      const rNavegarParaProximaPagina = await navegarParaProximaPagina(entradaNF, proximaPaginaId)
-      if (!rNavegarParaProximaPagina) break
-      const rObterNotasPendentes = await obterNotasPendentes(entradaNF)
-      if (!rObterNotasPendentes) break
-      const { nfs: n, proximaPaginaId: id } = rObterNotasPendentes
-      nfs.push(...n)
-      proximaPaginaId = id
-    }
-    browser = await realizarAcoes(nfs, browser)
+    if (nfs.length === 0) {
+      logger.info('Não há notas pendentes')
+      return
+    } 
+    
+    const b3 = await realizarAcoes(nfs, browser)
+    browser = b3
   } catch (error) {
     logger.info(error)
   } finally {
