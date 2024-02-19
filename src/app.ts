@@ -8,7 +8,10 @@ import {
 import { logger } from './logger-config'
 
 (async () => {
+  const notas = process.argv.slice(2, process.argv.length)
+
   let browser: Browser
+
   try {
     const { estoque, browser: b }  = await realizarLoginENavegarParaEstoque()
     browser = b
@@ -21,7 +24,10 @@ import { logger } from './logger-config'
       return
     } 
     
-    const b3 = await realizarAcoes(nfs, browser)
+    const b3 = notas.length === 0 
+      ? await realizarAcoes(nfs, browser)
+      : await realizarAcoes(nfs.filter(({ numero }) => notas.includes(numero)), browser)
+
     browser = b3
   } catch (error) {
     logger.info(error)
