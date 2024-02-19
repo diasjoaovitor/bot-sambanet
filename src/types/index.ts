@@ -13,4 +13,5 @@ export type TDadosDoProduto = {
 export type TNF = {
   descricao: string
   codigo: string
+  numero: string
 }
