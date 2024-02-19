@@ -1,5 +1,5 @@
 import puppeteer, { Browser, Page } from 'puppeteer'
-import { logger } from '../logger-config'
+import { associadosLogger, logger, naoCadastradosLogger } from '../logger-config'
 import { TDadosDoProduto, TNF } from '../types'
 import { delay } from '.'
 
@@ -74,7 +74,7 @@ export async function buscarNotasPendentes(pagina: Page) {
 
 export async function selecionarQuantidadeDeItensPagina(pagina: Page) {
   try {
-    logger.info('Selecionando Quantidade de registros por página...')
+    logger.info('Selecionando quantidade de registros por página...')
     await delay()
     await pagina.select('#ContentPlaceHolder1_ddlPageSize', '60')
     await delay()
@@ -94,7 +94,8 @@ export async function obterNotasPendentesNaPagina(pagina: Page) {
       tds.forEach((td, index) => {
         td.title && nfs.push({
           descricao: `${tds[index - 2].textContent} - ${td.textContent}`,
-          codigo: tds[index - 3].textContent
+          codigo: tds[index - 3].textContent,
+          numero: tds[index - 2].textContent
         })
       })
       let proximaPaginaId = null
@@ -174,42 +175,39 @@ export async function obterProdutosNaoAssociados(pagina: Page) {
 }
 
 export async function associarProduto(produto: TDadosDoProduto, url: string, browser: Browser) {
-  try {
-    const { barra, id } = produto
-    const itensNf = await browser.newPage()
-    await itensNf.goto(url)
-    await selecionarQuantidadeDeItensPagina(itensNf)
-    await itensNf.click(`#${id}`)
-    await itensNf.waitForSelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_PW-1')
-    await delay()
-    await itensNf.focus('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtBarraSamba')
-    await itensNf.type('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtBarraSamba', barra)
-    await delay()
-    await itensNf.keyboard.press('Tab')
-    await delay(10000)
-    const janela = await itensNf.waitForSelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_PW-1')
-    const resultado = await janela.evaluate(el => {       
-      const barra = el.querySelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtBarraSamba') as HTMLInputElement
-      const codigo = el.querySelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtCodprodSamba') as HTMLInputElement
-      return {
-        barra: barra.value || null,
-        codigo: codigo.value || null
-      }
-    })
-
-    if (!resultado.codigo || barra !== resultado.barra) {
-      logger.info('O produto não está cadastrado!')
-      return
+  const { barra, id } = produto
+  const itensNf = await browser.newPage()
+  await itensNf.goto(url)
+  await selecionarQuantidadeDeItensPagina(itensNf)
+  await itensNf.click(`#${id}`)
+  await itensNf.waitForSelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_PW-1')
+  await delay()
+  await itensNf.focus('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtBarraSamba')
+  await itensNf.type('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtBarraSamba', barra)
+  await delay()
+  await itensNf.keyboard.press('Tab')
+  await delay(10000)
+  const janela = await itensNf.waitForSelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_PW-1')
+  const resultado = await janela.evaluate(el => {       
+    const barra = el.querySelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtBarraSamba') as HTMLInputElement
+    const codigo = el.querySelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtCodprodSamba') as HTMLInputElement
+    return {
+      barra: barra.value || null,
+      codigo: codigo.value || null
     }
+  })
 
-    const salvar = await itensNf.waitForSelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_btnSalvar')
-    await salvar.evaluate(b => (b as HTMLButtonElement).click())
-    await delay()
-    logger.info('Produto associado!')
-  } catch (error) {
-    logger.info('Algo deu errado! Não foi possível associar o produto')
-    logger.error(error)
+  if (!resultado.codigo || barra !== resultado.barra) {
+    logger.info('O produto não está cadastrado!')
+    naoCadastradosLogger.info({ ...produto, url })
+    return
   }
+
+  const salvar = await itensNf.waitForSelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_btnSalvar')
+  await salvar.evaluate(b => (b as HTMLButtonElement).click())
+  await delay()
+  logger.info('Produto associado!')
+  associadosLogger.info({ ...produto, url })
 }
 
 export function finalizar(browser: Browser) {
