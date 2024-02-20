@@ -215,12 +215,11 @@ export async function associarProduto(produto: TDadosDoProduto, itensNf: Page) {
   await delay()
   print('Produto associado!')
   associadosLogger.info({ ...produto, url })
-  true
+  return true
 }
 
 export function finalizar(browser: Browser) {
   print('Execução finalizada!')
-  console.log(browser)
   if (!browser) throw new Error()
   browser.close()
 }
