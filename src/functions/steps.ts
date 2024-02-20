@@ -1,24 +1,24 @@
 import puppeteer, { Browser, Page } from 'puppeteer'
-import { associadosLogger, logger, naoCadastradosLogger } from '../logger-config'
+import { associadosLogger, logger, naoCadastradosLogger, print } from '../logger-config'
 import { TDadosDoProduto, TNF } from '../types'
 import { delay } from '.'
 
 export async function iniciar(url: string) {
   try {
-    logger.info('Iniciando...')
+    print('Iniciando...')
     const browser = await puppeteer.launch({ headless: 'new' })
     const pagina = await browser.newPage()
     await pagina.goto(url)
     return { browser, pagina }
   } catch (error) {
-    logger.info('Não foi possível iniciar')
+    print('Não foi possível iniciar')
     logger.error(error)
   }
 }
 
 export async function login({ browser, cnpj, pagina, senha, usuario }: { browser: Browser, pagina: Page, cnpj: string, senha: string, usuario: string}) {
   try {
-    logger.info(`Login [${pagina.url()}]`)
+    print(`Login [${pagina.url()}]`)
     await pagina.type('[formcontrolname=cnpj]', cnpj)
     await pagina.type('[formcontrolname=usuario]', usuario)
     await pagina.type('[formcontrolname=senha]', senha)
@@ -29,64 +29,64 @@ export async function login({ browser, cnpj, pagina, senha, usuario }: { browser
     const dashboard = await browser.newPage()
     await dashboard.setCookie(...cookies)
     await dashboard.goto(dashboardURL)
-    logger.info(`Dashboard [${dashboardURL}]`)
+    print(`Dashboard [${dashboardURL}]`)
     return dashboard
   } catch (error) {
-    logger.info('Não foi possível realizar o login')
+    print('Não foi possível realizar o login')
     logger.error(error)
   }
 }
 
 export async function navegarParaEstoque(browser: Browser, estoqueURL: string) {
   try {
-    logger.info(`Estoque [${estoqueURL}]`)
+    print(`Estoque [${estoqueURL}]`)
     const estoque = await browser.newPage()
     await estoque.goto(estoqueURL)
     return estoque
   } catch (error) {
-    logger.info('Não foi possível navegar para Estoque')
+    print('Não foi possível navegar para Estoque')
     logger.error(error)
   }
 }
 
 export async function navegarParaEntradaNF(browser: Browser, entradaNfURL: string) {
   try {
-    logger.info(`Entrada NF [${entradaNfURL}]`)
+    print(`Entrada NF [${entradaNfURL}]`)
     const entradaNF = await browser.newPage()
     await entradaNF.goto(entradaNfURL)
     return entradaNF
   } catch (error) {
-    logger.info('Não foi possível navegar para Entrada NF')
+    print('Não foi possível navegar para Entrada NF')
     logger.error(error)
   }
 }
 
 export async function buscarNotasPendentes(pagina: Page) {
   try {
-    logger.info('Buscando notas pendentes...')
+    print('Buscando notas pendentes...')
     await pagina.click('#ContentPlaceHolder1_ASPxRoundPanelMaisFiltros_chkPendentes')
     await pagina.waitForSelector('#ContentPlaceHolder1_ASPxRoundPanelMaisFiltros_chkPendentes[checked=checked]')
   } catch (error) {
-    logger.info('Não foi possível buscar notas pendentes para entrada')
+    print('Não foi possível buscar notas pendentes para entrada')
     logger.error(error)
   }
 }
 
 export async function selecionarQuantidadeDeItensPagina(pagina: Page) {
   try {
-    logger.info('Selecionando quantidade de registros por página...')
+    print('Selecionando quantidade de registros por página...')
     await delay()
     await pagina.select('#ContentPlaceHolder1_ddlPageSize', '60')
     await delay()
   } catch (error) {
-    logger.info('Não foi possível selecionar a quantidade de registros por página')
+    print('Não foi possível selecionar a quantidade de registros por página')
     logger.error(error)
   }
 }
 
 export async function obterNotasPendentesNaPagina(pagina: Page) {
   try {
-    logger.info('Obtendo notas pendentes na página...')
+    print('Obtendo notas pendentes na página...')
     return await pagina.evaluate(() => {
       const tabela = document.getElementById('ContentPlaceHolder1_gvDados')
       const nfs: TNF[] = []
@@ -106,18 +106,18 @@ export async function obterNotasPendentesNaPagina(pagina: Page) {
       return { nfs, proximaPaginaId }
     })
   } catch (error) {
-    logger.info('Não foi retornar as notas pendentes')
+    print('Não foi retornar as notas pendentes')
     logger.error(error)
   }
 }
 
 export async function navegarParaProximaPagina(pagina: Page, proximaPaginaId: string) {
   try {
-    logger.info('Navegando para próxima página...')
+    print('Navegando para próxima página...')
     await pagina.click(`#${proximaPaginaId}`)
     await delay()
   } catch (error) {
-    logger.info('Não foi possível navegar para a próxima página')
+    print('Não foi possível navegar para a próxima página')
     logger.error(error)
   }
 }
@@ -127,10 +127,9 @@ export async function navegarParaItensDaNF(codigoDaNF: string, browser: Browser)
   try {
     const itensNf = await browser.newPage()
     await itensNf.goto(itensNfURL)
-    logger.info(`Itens NF [${itensNf.url()}]`)
     return { itensNf, itensNfURL }
   } catch (error) {
-    logger.info(`Não foi possível navegar para ${itensNfURL}`)
+    print(`Não foi possível navegar para ${itensNfURL}`)
     logger.error(error)
   }
 }
@@ -169,16 +168,24 @@ export async function obterProdutosNaoAssociados(pagina: Page) {
       return { produtosNaoAssociados: array, proximaPaginaId } 
     }, tabela)
   } catch (error) {
-    logger.info('Não foi possível obter os produtos não associados')
+    print('Não foi possível obter os produtos não associados')
     logger.error(error)
   }
 }
 
-export async function associarProduto(produto: TDadosDoProduto, url: string, browser: Browser) {
+export async function associarProduto(produto: TDadosDoProduto, itensNf: Page) {
+  print('Tentando associar produto...')
+
+  const url = itensNf.url()
+
   const { barra, id } = produto
-  const itensNf = await browser.newPage()
-  await itensNf.goto(url)
-  await selecionarQuantidadeDeItensPagina(itensNf)
+
+  if (barra === 'SEM GTIN') {
+    print('O produto não está cadastrado!')
+    naoCadastradosLogger.info({ ...produto, url })
+    return false
+  }
+
   await itensNf.click(`#${id}`)
   await itensNf.waitForSelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_PW-1')
   await delay()
@@ -198,19 +205,22 @@ export async function associarProduto(produto: TDadosDoProduto, url: string, bro
   })
 
   if (!resultado.codigo || barra !== resultado.barra) {
-    logger.info('O produto não está cadastrado!')
+    print('O produto não está cadastrado!')
     naoCadastradosLogger.info({ ...produto, url })
-    return
+    return false
   }
 
   const salvar = await itensNf.waitForSelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_btnSalvar')
   await salvar.evaluate(b => (b as HTMLButtonElement).click())
   await delay()
-  logger.info('Produto associado!')
+  print('Produto associado!')
   associadosLogger.info({ ...produto, url })
+  true
 }
 
 export function finalizar(browser: Browser) {
+  print('Execução finalizada!')
+  console.log(browser)
+  if (!browser) throw new Error()
   browser.close()
-  logger.info('Execução finalizada!')
 }
