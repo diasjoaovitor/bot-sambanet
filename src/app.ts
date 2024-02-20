@@ -1,6 +1,7 @@
 import { Browser } from 'puppeteer'
 import { 
   finalizar,
+  obterNfsFinalizadas,
   obterTodasAsNotasPendentes, 
   realizarAcoes, 
   realizarLoginENavegarParaEstoque
@@ -23,9 +24,10 @@ import { logger } from './logger-config'
       logger.info('Não há notas pendentes')
       return
     } 
-    
-    const b3 = notas.length === 0 
-      ? await realizarAcoes(nfs, browser)
+    const finalizadas = await obterNfsFinalizadas()
+    const nfsSelecionadas = notas[0] !== 'all' ? nfs.filter(({ codigo, numero }) => !finalizadas.find(({ codigo: c, numero: n}) => c === codigo && n === numero)) : nfs
+    const b3 = notas.length === 0 || notas[0] === 'all'
+      ? await realizarAcoes(nfsSelecionadas, browser)
       : await realizarAcoes(nfs.filter(({ numero }) => notas.includes(numero)), browser)
 
     browser = b3
