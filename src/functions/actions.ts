@@ -75,6 +75,7 @@ export async function obterTodasAsNotasPendentes(estoque: Page, browser: Browser
       tentativas++
       logger.error(error)
       print(error)
+      browser.close()
       const { browser: b, estoque: e } = await realizarLoginENavegarParaEstoque()
       browser = b
       estoque = e
@@ -149,16 +150,19 @@ export async function realizarAcoes(nfs: TNF[], browser: Browser) {
       tentativas++
       logger.error(error)
       print(error)
+      browser.close()
       const { browser: b } = await realizarLoginENavegarParaEstoque()
       browser = b
     }
   }
 
+  const ra = relatorioAssociados.filter(({ produtos }) => produtos.length > 0)
+  const rna = relatorioNaoAssociados.filter(({ produtos }) => produtos.length > 0)
   print('Associados: ')
-  printRelatorio(relatorioAssociados)
+  ra.length > 0 ? printRelatorio(ra) : print('Nenhum produto foi associado!')
 
   print('Não Associados: ')
-  printRelatorio(relatorioNaoAssociados)
+  rna.length > 0 ? printRelatorio(rna) : print('Não não há produtos a serem associados!')
 
   return browser
 }
