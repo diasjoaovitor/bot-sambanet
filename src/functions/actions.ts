@@ -60,13 +60,15 @@ export async function obterTodasAsNotasPendentes(estoque: Page, browser: Browser
 
       await selecionarQuantidadeDeItensPagina(entradaNF)
 
-      const { nfs: n, proximaPaginaId: id } = await obterNotasPendentesNaPagina(entradaNF)
+      let pagina = 1
+      const { nfs: n, proximaPaginaId: id } = await obterNotasPendentesNaPagina(entradaNF, pagina)
       const nfs = [...n]
 
       let proximaPaginaId = id
       while (proximaPaginaId) {
+        pagina++
         await navegarParaProximaPagina(entradaNF, proximaPaginaId)
-        const { nfs: n, proximaPaginaId: id } = await obterNotasPendentesNaPagina(entradaNF)
+        const { nfs: n, proximaPaginaId: id } = await obterNotasPendentesNaPagina(entradaNF, pagina)
         nfs.push(...n)
         proximaPaginaId = id
       }
@@ -85,10 +87,11 @@ export async function obterTodasAsNotasPendentes(estoque: Page, browser: Browser
 }
 
 export async function realizarAcoes(nfs: TNF[], browser: Browser) {
+  print(`Realizando ações em ${nfs.length} not${nfs.length > 1 ? 'as' : 'a'}...`)
+
   const relatorioAssociados: TRelatorio = []
   const relatorioNaoAssociados: TRelatorio = []
 
-  print(`Quantidade de notas pendentes ${nfs.length}`)
   let tentativas = 0
   let i = 0
   while (i < nfs.length && tentativas < 10) {
@@ -116,24 +119,27 @@ export async function realizarAcoes(nfs: TNF[], browser: Browser) {
 
       let proximaPaginaId = id
       let pagina = 1
-      while (pagina === 1 || proximaPaginaId) {
-        if (proximaPaginaId && pagina > 1) {
+      let primeiraVarredura = true
+      while (primeiraVarredura || proximaPaginaId) {
+        if (proximaPaginaId && !primeiraVarredura) {
           await navegarParaProximaPagina(itensNf, proximaPaginaId)
           
           const { produtosNaoAssociados: pna, proximaPaginaId: id } = await obterProdutosNaoAssociados(itensNf)
           produtosNaoAssociados = [...pna]
-          
           proximaPaginaId = id
+          pagina++
           print(`Página ${pagina}`)
         }
-        pagina++
-
+        primeiraVarredura = false
+        
         if (produtosNaoAssociados.length === 0) {
           print('Todos os produtos já foram associados!')
-          await gerarRelatorioDeNfsFinalizadas(nf)
-          break
+          if (proximaPaginaId) 
+            continue 
+          else 
+            break
         }
-
+        
         print(`Quantidade de produtos não associados: ${produtosNaoAssociados.length}`)
         for (let j = 0; j < produtosNaoAssociados.length; j++) {
           const produto = produtosNaoAssociados[j]
@@ -143,8 +149,8 @@ export async function realizarAcoes(nfs: TNF[], browser: Browser) {
           const r = await associarProduto(produto, itensNf)
           r ? relatorioAssociados[i].produtos.push(descricaoDoProduto) : relatorioNaoAssociados[i].produtos.push(descricaoDoProduto)
         }
-        if (relatorioNaoAssociados[i].produtos.length === 0) await gerarRelatorioDeNfsFinalizadas(nf)
       }
+      if (relatorioNaoAssociados[i].produtos.length === 0) await gerarRelatorioDeNfsFinalizadas(nf)
       i++
     } catch (error) {
       tentativas++
