@@ -6,7 +6,7 @@ import {
   realizarAcoes, 
   realizarLoginENavegarParaEstoque
 } from './functions'
-import { logger } from './logger-config'
+import { logger, print } from './logger-config'
 
 (async () => {
   const notas = process.argv.slice(2, process.argv.length)
@@ -24,6 +24,9 @@ import { logger } from './logger-config'
       logger.info('Não há notas pendentes')
       return
     } 
+
+    print(`Quantidade de notas pendentes ${nfs.length}`)
+
     const finalizadas = await obterNfsFinalizadas()
     const nfsSelecionadas = notas[0] !== 'all' ? nfs.filter(({ codigo, numero }) => !finalizadas.find(({ codigo: c, numero: n}) => c === codigo && n === numero)) : nfs
     const b3 = notas.length === 0 || notas[0] === 'all'
