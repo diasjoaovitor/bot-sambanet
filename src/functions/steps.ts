@@ -84,9 +84,9 @@ export async function selecionarQuantidadeDeItensPagina(pagina: Page) {
   }
 }
 
-export async function obterNotasPendentesNaPagina(pagina: Page) {
+export async function obterNotasPendentesNaPagina(pagina: Page, numeroDaPagina: number) {
   try {
-    print('Obtendo notas pendentes na página...')
+    print(`Obtendo notas pendentes na página ${numeroDaPagina}...`)
     return await pagina.evaluate(() => {
       const tabela = document.getElementById('ContentPlaceHolder1_gvDados')
       const nfs: TNF[] = []
@@ -207,6 +207,8 @@ export async function associarProduto(produto: TDadosDoProduto, itensNf: Page) {
   if (!resultado.codigo || barra !== resultado.barra) {
     print('O produto não está cadastrado!')
     naoCadastradosLogger.info({ ...produto, url })
+    await itensNf.click('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_HCB-1')
+    await delay()
     return false
   }
 
