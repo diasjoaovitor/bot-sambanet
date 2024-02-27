@@ -175,10 +175,9 @@ export async function obterProdutosNaoAssociados(pagina: Page) {
 
 export async function associarProduto(produto: TDadosDoProduto, itensNf: Page) {
   print('Tentando associar produto...')
-
   const url = itensNf.url()
 
-  const { barra, id } = produto
+  const { barra, id, nome } = produto
 
   if (barra === 'SEM GTIN') {
     print('O produto não está cadastrado!')
@@ -194,15 +193,24 @@ export async function associarProduto(produto: TDadosDoProduto, itensNf: Page) {
   await delay()
   await itensNf.keyboard.press('Tab')
   await delay(10000)
+  
   const janela = await itensNf.waitForSelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_PW-1')
+
   const resultado = await janela.evaluate(el => {       
-    const barra = el.querySelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtBarraSamba') as HTMLInputElement
-    const codigo = el.querySelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtCodprodSamba') as HTMLInputElement
+    const barra = el.querySelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtBarraSamba') 
+    const codigo = el.querySelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtCodprodSamba') 
+    const nome = el.querySelector('#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_txtDescricao') 
     return {
-      barra: barra.value || null,
-      codigo: codigo.value || null
+      barra: barra ? (barra as HTMLInputElement).value : null,
+      codigo: codigo ? (codigo as HTMLInputElement).value : null,
+      nome: nome ? (nome as HTMLInputElement).value : null
     }
   })
+
+  if (resultado.nome !== nome) {
+    print('O script não conseguiu fechar a janela anterior!')
+    throw 'error'
+  }
 
   if (!resultado.codigo || barra !== resultado.barra) {
     print('O produto não está cadastrado!')
@@ -222,6 +230,6 @@ export async function associarProduto(produto: TDadosDoProduto, itensNf: Page) {
 
 export function finalizar(browser: Browser) {
   print('Execução finalizada!')
-  if (!browser) throw new Error()
+  if (!browser) throw 'error'
   browser.close()
 }
