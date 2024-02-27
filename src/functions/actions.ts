@@ -143,8 +143,9 @@ export async function realizarAcoes(nfs: TNF[], browser: Browser) {
         print(`Quantidade de produtos não associados: ${produtosNaoAssociados.length}`)
         for (let j = 0; j < produtosNaoAssociados.length; j++) {
           const produto = produtosNaoAssociados[j]
-          const { nome, barraXML } = produto
-          const descricaoDoProduto = `${j + 1} - ${nome} - ${barraXML}`
+          const { nome, barraXML, barra } = produto
+          const b = barraXML === barra ? barraXML : `${barraXML} - ${barra}` 
+          const descricaoDoProduto = `${j + 1} - ${nome} - ${b}`
           print(descricaoDoProduto)
           const r = await associarProduto(produto, itensNf)
           r ? relatorioAssociados[i].produtos.push(descricaoDoProduto) : relatorioNaoAssociados[i].produtos.push(descricaoDoProduto)
