@@ -5,7 +5,7 @@ import { logger } from '@/config'
 const arquivo = 'nfs-finalizadas.txt'
 
 export async function delay(value?: number) {
-  await new Promise(() => setTimeout(() => {}, value || 5000))
+  await new Promise((resolve) => setTimeout(resolve, value || 5000))
 }
 
 export async function salvarDeNfsFinalizadas(nf: TNF) {
