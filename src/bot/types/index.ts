@@ -17,6 +17,6 @@ export type TNF = {
 }
 
 export type TRelatorio = {
-  nf: string,
+  nf: string
   produtos: string[]
-}[]
+}
