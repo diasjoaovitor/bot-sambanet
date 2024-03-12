@@ -16,7 +16,8 @@ import {
   selecionarQuantidadeDeItensPagina
 } from './steps'
 import { obterEntradaNfURL, obterEstoqueURL } from './regex'
-import { print, printRelatorio, salvarDeNfsFinalizadas } from '../utils'
+import { print, salvarNfsFinalizadas } from '../utils'
+import { salvarProdutoAssociado } from '@/db'
 
 dotenv.config()
 
@@ -130,7 +131,6 @@ export async function realizarAcoes(nfs: TNF[], browser: Browser) {
     `Realizando ações em ${nfs.length} not${nfs.length > 1 ? 'as' : 'a'}...`
   )
 
-  const relatorioAssociados: TRelatorio[] = []
   const relatorioNaoAssociados: TRelatorio[] = []
 
   let tentativas = 0
@@ -147,10 +147,6 @@ export async function realizarAcoes(nfs: TNF[], browser: Browser) {
       const descricaoDaNF = `${i + 1}  - ${descricao} [${itensNfURL}]`
       print(descricaoDaNF)
 
-      relatorioAssociados.push({
-        nf: descricaoDaNF,
-        produtos: []
-      })
       relatorioNaoAssociados.push({
         nf: descricaoDaNF,
         produtos: []
@@ -201,12 +197,16 @@ export async function realizarAcoes(nfs: TNF[], browser: Browser) {
           print(descricaoDoProduto)
           const r = await associarProduto(produto, itensNf)
           r
-            ? relatorioAssociados[i].produtos.push(descricaoDoProduto)
+            ? await salvarProdutoAssociado({
+                nf: descricaoDaNF,
+                nome: descricaoDoProduto,
+                createdAt: new Date().toISOString()
+              })
             : relatorioNaoAssociados[i].produtos.push(descricaoDoProduto)
         }
       }
       if (relatorioNaoAssociados[i].produtos.length === 0)
-        await salvarDeNfsFinalizadas(nf)
+        await salvarNfsFinalizadas(nf)
       i++
     } catch (error) {
       tentativas++
@@ -219,18 +219,5 @@ export async function realizarAcoes(nfs: TNF[], browser: Browser) {
       browser = b
     }
   }
-
-  const ra = relatorioAssociados.filter(({ produtos }) => produtos.length > 0)
-  const rna = relatorioNaoAssociados.filter(
-    ({ produtos }) => produtos.length > 0
-  )
-  print('Associados: ')
-  ra.length > 0 ? printRelatorio(ra) : print('Nenhum produto foi associado!')
-
-  print('Não Associados: ')
-  rna.length > 0
-    ? printRelatorio(rna)
-    : print('Não não há produtos a serem associados!')
-
   return browser
 }
