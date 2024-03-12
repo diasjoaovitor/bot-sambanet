@@ -1,13 +1,12 @@
 import { bot } from './bot'
-
 ;(async () => {
-  await new Promise(() => {
-    const interval = setInterval(
-      () => {
+  const interval = setInterval(
+    async () => {
+      await new Promise(() => {
         bot()
         clearInterval(interval)
-      },
-      2 * 60 * 60
-    )
-  })
+      })
+    },
+    2 * 60 * 60
+  )
 })()
