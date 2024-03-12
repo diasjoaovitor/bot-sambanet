@@ -1,7 +1,7 @@
 import type { Browser, Page } from 'puppeteer'
 import type { TDadosDoProduto, TNF } from '../types'
 import puppeteer from 'puppeteer'
-import { associadosLogger, logger, naoCadastradosLogger } from '@/config'
+import { logger } from '@/config'
 import { delay, print } from '../utils'
 
 export async function iniciar(url: string) {
@@ -214,13 +214,11 @@ export async function obterProdutosNaoAssociados(pagina: Page) {
 
 export async function associarProduto(produto: TDadosDoProduto, itensNf: Page) {
   print('Tentando associar produto...')
-  const url = itensNf.url()
 
   const { barra, id, nome } = produto
 
   if (barra === 'SEM GTIN') {
     print('O produto não está cadastrado!')
-    naoCadastradosLogger.info({ ...produto, url })
     return
   }
 
@@ -270,7 +268,6 @@ export async function associarProduto(produto: TDadosDoProduto, itensNf: Page) {
 
   if (!resultado.codigo || barra !== resultado.barra) {
     print('O produto não está cadastrado!')
-    naoCadastradosLogger.info({ ...produto, url })
     await itensNf.click(
       '#ContentPlaceHolder1_AssociarProduto_ASPxPopupControlAssociarProduto_HCB-1'
     )
@@ -287,7 +284,6 @@ export async function associarProduto(produto: TDadosDoProduto, itensNf: Page) {
   })
   await delay()
   print('Produto associado!')
-  associadosLogger.info({ ...produto, url })
   return true
 }
 
