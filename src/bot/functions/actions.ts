@@ -20,6 +20,7 @@ import { obterEntradaNfURL, obterEstoqueURL } from './regex'
 import {
   print,
   salvarAssociadosQueNaoForamSalvosNoBanco,
+  salvarNaoCadastrados,
   salvarNfsFinalizadas
 } from '@/utils'
 
@@ -214,7 +215,7 @@ export async function realizarAcoes(nfs: TNF[], browser: Browser) {
               await salvarAssociadosQueNaoForamSalvosNoBanco(p)
             }
           } else {
-            await salvarAssociadosQueNaoForamSalvosNoBanco(p)
+            await salvarNaoCadastrados(p)
             relatorioNaoAssociados[i].produtos.push(descricaoDoProduto)
           }
         }

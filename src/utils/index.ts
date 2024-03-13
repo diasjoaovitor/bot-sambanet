@@ -27,10 +27,14 @@ export async function salvarNaoCadastrados(produto: TProdutoDB) {
   await salvarJson('nao-cadastrados.json', produto)
 }
 
+export async function limparNaoCadastrados() {
+  await pfs.writeFile('nao-cadastrados.json', '')
+}
+
 export async function salvarAssociadosQueNaoForamSalvosNoBanco(
   produto: TProdutoDB
 ) {
-  await salvarJson('associados.json', produto)
+  await salvarJson('associados-que-nao-foram-salvos-no-banco.json', produto)
 }
 
 export async function obterNfsFinalizadas() {

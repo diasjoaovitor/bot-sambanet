@@ -1,7 +1,7 @@
 import '../config/alias-config'
 import type { Browser } from 'puppeteer'
 import { logger } from '@/config'
-import { obterNfsFinalizadas, print } from '@/utils'
+import { limparNaoCadastrados, obterNfsFinalizadas, print } from '@/utils'
 import {
   finalizar,
   obterTodasAsNotasPendentes,
@@ -15,6 +15,8 @@ export async function bot() {
   let browser: Browser
 
   try {
+    await limparNaoCadastrados()
+
     const r = await realizarLoginENavegarParaEstoque()
     if (!r) return
 
