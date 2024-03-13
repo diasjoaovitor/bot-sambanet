@@ -1,13 +1,13 @@
 import '../config/alias-config'
 import type { Browser } from 'puppeteer'
 import { logger } from '@/config'
+import { obterNfsFinalizadas, print } from '@/utils'
 import {
   finalizar,
   obterTodasAsNotasPendentes,
   realizarAcoes,
   realizarLoginENavegarParaEstoque
 } from './functions'
-import { obterNfsFinalizadas, print } from './utils'
 
 export async function bot() {
   const notas = process.argv.slice(2, process.argv.length)

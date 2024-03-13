@@ -2,7 +2,7 @@ import type { Browser, Page } from 'puppeteer'
 import type { TDadosDoProduto, TNF } from '../types'
 import puppeteer from 'puppeteer'
 import { logger } from '@/config'
-import { delay, print } from '../utils'
+import { delay, print } from '@/utils'
 
 export async function iniciar(url: string) {
   try {

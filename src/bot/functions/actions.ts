@@ -1,6 +1,7 @@
 import type { Browser, Page } from 'puppeteer'
 import type { TNF, TRelatorio } from '../types'
 import dotenv from 'dotenv'
+import { salvarProdutoAssociado, type TProdutoDB } from '@/db'
 import { logger } from '@/config'
 import {
   associarProduto,
@@ -16,8 +17,11 @@ import {
   selecionarQuantidadeDeItensPagina
 } from './steps'
 import { obterEntradaNfURL, obterEstoqueURL } from './regex'
-import { print, salvarNfsFinalizadas } from '../utils'
-import { salvarProdutoAssociado } from '@/db'
+import {
+  print,
+  salvarAssociadosQueNaoForamSalvosNoBanco,
+  salvarNfsFinalizadas
+} from '@/utils'
 
 dotenv.config()
 
@@ -196,13 +200,23 @@ export async function realizarAcoes(nfs: TNF[], browser: Browser) {
           const descricaoDoProduto = `${j + 1} - ${nome} - ${b}`
           print(descricaoDoProduto)
           const r = await associarProduto(produto, itensNf)
-          r
-            ? await salvarProdutoAssociado({
-                nf: descricaoDaNF,
-                nome: descricaoDoProduto,
-                createdAt: new Date().toISOString()
-              })
-            : relatorioNaoAssociados[i].produtos.push(descricaoDoProduto)
+          const p: TProdutoDB = {
+            nf: descricaoDaNF,
+            nome: descricaoDoProduto,
+            createdAt: new Date().toISOString()
+          }
+          if (r) {
+            try {
+              await salvarProdutoAssociado(p)
+            } catch (error) {
+              logger.error(error)
+              print(error as string)
+              await salvarAssociadosQueNaoForamSalvosNoBanco(p)
+            }
+          } else {
+            await salvarAssociadosQueNaoForamSalvosNoBanco(p)
+            relatorioNaoAssociados[i].produtos.push(descricaoDoProduto)
+          }
         }
       }
       if (relatorioNaoAssociados[i].produtos.length === 0)
