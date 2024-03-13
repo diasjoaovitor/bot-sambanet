@@ -14,10 +14,5 @@ export const associadosCollection =
   database.collection<TProdutoDB>('associados')
 
 export const dbConnection = async () => {
-  try {
-    await client.connect()
-  } catch (error) {
-    console.error(error)
-  }
-  console.log(' > Connected to Atlas Edge Server')
+  await client.connect()
 }
