@@ -1,7 +1,7 @@
 import type { TProdutoDB } from '@/db'
 import type { TNF } from '../bot/types'
 import fs, { promises as pfs } from 'fs'
-import { logger } from '@/config'
+import { io, logger } from '@/config'
 
 const arquivoNfs = 'nfs-finalizadas.txt'
 
@@ -21,6 +21,10 @@ export async function delay(value?: number) {
 export async function salvarNfsFinalizadas(nf: TNF) {
   !fs.existsSync(arquivoNfs) && (await pfs.writeFile(arquivoNfs, ''))
   await pfs.appendFile(arquivoNfs, `${nf.codigo}-${nf.numero}\n`)
+}
+
+export async function limparNfsFinalizadas() {
+  await pfs.writeFile(arquivoNfs, '')
 }
 
 export async function salvarNaoCadastrados(produto: TProdutoDB) {
@@ -48,6 +52,7 @@ export async function obterNfsFinalizadas() {
 }
 
 export function print(mensagem: string) {
+  io.emit('log', mensagem)
   console.log(`\n> ${mensagem}`)
   logger.info(mensagem)
 }
