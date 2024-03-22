@@ -1,7 +1,11 @@
 import '../config/alias-config'
 import type { Browser } from 'puppeteer'
-import { logger } from '@/config'
-import { limparNaoCadastrados, obterNfsFinalizadas, print } from '@/utils'
+import {
+  limparNaoCadastrados,
+  limparNfsFinalizadas,
+  obterNfsFinalizadas,
+  print
+} from '@/utils'
 import {
   finalizar,
   obterTodasAsNotasPendentes,
@@ -9,9 +13,7 @@ import {
   realizarLoginENavegarParaEstoque
 } from './functions'
 
-export async function bot() {
-  const notas = process.argv.slice(2, process.argv.length)
-
+export async function bot({ opcao }: { opcao: string }) {
   let browser: Browser
 
   try {
@@ -30,35 +32,44 @@ export async function bot() {
     browser = b2
 
     if (nfs.length === 0) {
-      logger.info('Não há notas pendentes')
+      print('Não há notas pendentes')
       return
     }
 
     print(`Quantidade de notas pendentes ${nfs.length}`)
 
     const finalizadas = await obterNfsFinalizadas()
-    const nfsSelecionadas =
-      notas[0] !== 'all'
-        ? nfs.filter(
+
+    const selecionarOpcao = async () => {
+      switch (opcao) {
+        case 'Iniciar': {
+          const nfsNaoFinalizadas = nfs.filter(
             ({ codigo, numero }) =>
               !finalizadas.find(
                 ({ codigo: c, numero: n }) => c === codigo && n === numero
               )
           )
-        : nfs
-    const b3 =
-      notas.length === 0 || notas[0] === 'all'
-        ? await realizarAcoes(nfsSelecionadas, browser)
-        : await realizarAcoes(
-            nfs.filter(({ numero }) => notas.includes(numero)),
-            browser
+          return await realizarAcoes(nfsNaoFinalizadas, browser)
+        }
+        case 'Resetar': {
+          await limparNfsFinalizadas()
+          return await realizarAcoes(nfs, browser)
+        }
+        default: {
+          const notas = opcao.split(' ')
+          const nfsSelecionadas = nfs.filter(({ numero }) =>
+            notas.includes(numero)
           )
+          return await realizarAcoes(nfsSelecionadas, browser)
+        }
+      }
+    }
 
-    if (!b3) throw new Error('Não foi possível finalalizar!')
+    const b3 = await selecionarOpcao()
+    if (!b3) throw new Error('Não foi possível finalizar!')
     browser = b3
     finalizar(browser)
   } catch (error) {
-    logger.info(error)
-    throw new Error('Não foi possível finalalizar!')
+    print(error as string)
   }
 }

@@ -1,20 +1,18 @@
-import express from 'express'
-import cors from 'cors'
 import { bot } from './bot'
-import router from './routes'
-import { dbConnection } from './config'
+import { dbConnection, io, server } from './config'
 import { print } from './utils'
 
-const app = express()
 const port = process.env.PORT || 5000
 
-app.use(express.json())
-app.use(cors())
-app.use(router)
+io.on('connection', (socket) => {
+  socket.on('script', async (msg) => {
+    await bot({ opcao: msg })
+  })
+})
 
-app.listen(port, async () => {
-  print('Acesse: http://localhost:5000')
+server.listen(port, async () => {
   print('Conectando ao banco de dados...')
   await dbConnection()
-  await bot()
+  print('Conectado!')
+  print('Acesse: http://localhost:5000')
 })
