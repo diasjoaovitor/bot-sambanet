@@ -69,6 +69,6 @@ li {
   padding: 5px 10px;
 }
 
-li:nth-child(odd) {
+main > ul > li:nth-child(odd) {
   background-color: #565d61;
 }
