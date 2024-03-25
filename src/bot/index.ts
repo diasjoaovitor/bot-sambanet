@@ -1,34 +1,34 @@
 import '../config/alias-config'
 import type { Browser } from 'puppeteer'
 import {
-  limparNaoCadastrados,
-  limparNfsFinalizadas,
-  obterNfsFinalizadas,
+  clearFinishedNotes,
+  clearUngisteredProduct,
+  getFinishedNotes,
   print
 } from '@/utils'
 import {
-  finalizar,
-  obterTodasAsNotasPendentes,
-  realizarAcoes,
-  realizarLoginENavegarParaEstoque
+  getAllPendingNotes,
+  loginAndNavigateToEstoque,
+  startActions,
+  stop
 } from './functions'
 
-export async function bot({ opcao }: { opcao: string }) {
+export async function bot({ option }: { option: string }) {
   let browser: Browser
 
   try {
-    await limparNaoCadastrados()
+    await clearUngisteredProduct()
 
-    const r = await realizarLoginENavegarParaEstoque()
-    if (!r) return
+    const estoqueData = await loginAndNavigateToEstoque()
+    if (!estoqueData) return
 
-    const { estoque, browser: b } = r
+    const { estoque, browser: b } = estoqueData
     browser = b
 
-    const rPendentes = await obterTodasAsNotasPendentes(estoque, browser)
-    if (!rPendentes) return
+    const pendingNotesData = await getAllPendingNotes(estoque, browser)
+    if (!pendingNotesData) return
 
-    const { browser: b2, nfs } = rPendentes
+    const { browser: b2, nfs } = pendingNotesData
     browser = b2
 
     if (nfs.length === 0) {
@@ -38,37 +38,37 @@ export async function bot({ opcao }: { opcao: string }) {
 
     print(`Quantidade de notas pendentes ${nfs.length}`)
 
-    const finalizadas = await obterNfsFinalizadas()
+    const finished = await getFinishedNotes()
 
-    const selecionarOpcao = async () => {
-      switch (opcao) {
-        case 'Iniciar': {
-          const nfsNaoFinalizadas = nfs.filter(
-            ({ codigo, numero }) =>
-              !finalizadas.find(
-                ({ codigo: c, numero: n }) => c === codigo && n === numero
+    const selectOption = async () => {
+      switch (option) {
+        case 'start': {
+          const unfinishedNotes = nfs.filter(
+            ({ code, number }) =>
+              !finished.find(
+                ({ code: c, number: n }) => c === code && n === number
               )
           )
-          return await realizarAcoes(nfsNaoFinalizadas, browser)
+          return await startActions(unfinishedNotes, browser)
         }
-        case 'Resetar': {
-          await limparNfsFinalizadas()
-          return await realizarAcoes(nfs, browser)
+        case 'reset': {
+          await clearFinishedNotes()
+          return await startActions(nfs, browser)
         }
         default: {
-          const notas = opcao.split(' ')
-          const nfsSelecionadas = nfs.filter(({ numero }) =>
-            notas.includes(numero)
+          const notes = option.split(' ')
+          const nfsSelecionadas = nfs.filter(({ number }) =>
+            notes.includes(number)
           )
-          return await realizarAcoes(nfsSelecionadas, browser)
+          return await startActions(nfsSelecionadas, browser)
         }
       }
     }
 
-    const b3 = await selecionarOpcao()
+    const b3 = await selectOption()
     if (!b3) throw new Error('Não foi possível finalizar!')
     browser = b3
-    finalizar(browser)
+    stop(browser)
   } catch (error) {
     print(error as string)
   }

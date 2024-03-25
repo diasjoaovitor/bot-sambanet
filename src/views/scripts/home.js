@@ -1,44 +1,43 @@
 const socket = io()
 const ul = document.querySelector('ul')
 
-const iniciar = document.getElementById('iniciar')
-const limpar = document.getElementById('limpar')
-const resetar = document.getElementById('resetar')
+const start = document.getElementById('start')
+const clear = document.getElementById('clear')
+const reset = document.getElementById('reset')
 
-const notas = document.querySelector('input').value
+const notes = document.querySelector('input').value
 
 const render = (msg) => {
-  const [texto, link] = msg.split('[')
+  const [text, link] = msg.split('[')
   const li = document.createElement('li')
   li.innerHTML = !link
-    ? texto
-    : `<a href="${link.replace(']', '')}" target="_blank">${texto}</a>`
+    ? text
+    : `<a href="${link.replace(']', '')}" target="_blank">${text}</a>`
   ul.appendChild(li)
   const main = document.querySelector('main')
   main.scrollTop = ul.clientHeight
 }
 
-iniciar.onclick = () => {
-  iniciar.setAttribute('disabled', true)
-  console.log(iniciar)
-  resetar.setAttribute('disabled', true)
-  socket.emit('script', !notas ? 'Iniciar' : notas)
+start.onclick = () => {
+  start.setAttribute('disabled', true)
+  reset.setAttribute('disabled', true)
+  socket.emit('script', !notes ? 'start' : notes)
 }
 
-limpar.onclick = () => {
+clear.onclick = () => {
   ul.innerHTML = ''
 }
 
-resetar.onclick = () => {
-  iniciar.setAttribute('disabled', true)
-  resetar.setAttribute('disabled', true)
-  socket.emit('script', 'Resetar')
+reset.onclick = () => {
+  start.setAttribute('disabled', true)
+  reset.setAttribute('disabled', true)
+  socket.emit('script', 'reset')
 }
 
 socket.on('log', (msg) => {
   render(msg)
   if (msg === 'Execução finalizada!' || msg === 'Não foi possível finalizar!') {
-    iniciar.removeAttribute('disabled', true)
-    resetar.removeAttribute('disabled', true)
+    start.removeAttribute('disabled', true)
+    reset.removeAttribute('disabled', true)
   }
 })

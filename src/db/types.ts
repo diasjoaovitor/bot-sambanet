@@ -1,5 +1,5 @@
-import type { TProduto } from '@/bot/types'
+import type { TData } from '@/bot/types'
 
-export type TProdutoDB = {
+export type TDataDB = {
   createdAt: string
-} & TProduto
+} & TData

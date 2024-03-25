@@ -1,128 +1,120 @@
 import type { Browser, Page } from 'puppeteer'
-import type { TNF, TRelatorio } from '../types'
 import dotenv from 'dotenv'
-import { salvarProdutoAssociado, type TProdutoDB } from '@/db'
+import type { TNote, TReport } from '../types'
+import { type TDataDB, saveAssociatedProductInDB } from '@/db'
 import { logger } from '@/config'
+import { print, saveFinishedNote, saveUnresgisteredProduct } from '@/utils'
 import {
-  associarProduto,
-  buscarNotasPendentes,
-  iniciar,
+  associateProduct,
+  getPendingNotes,
+  getPendingNotesOnThePage,
+  getUnassociatedProducts,
   login,
-  navegarParaEntradaNF,
-  navegarParaEstoque,
-  navegarParaItensDaNF,
-  navegarParaProximaPagina,
-  obterNotasPendentesNaPagina,
-  obterProdutosNaoAssociados,
-  selecionarQuantidadeDeItensPagina
+  navigateToEntradaNf,
+  navigateToEstoque,
+  navigateToItensDaNF,
+  navigateToNextPage,
+  selectNumberOfItemsPerPage,
+  start
 } from './steps'
-import { obterEntradaNfURL, obterEstoqueURL } from './regex'
-import {
-  print,
-  salvarAssociadosQueNaoForamSalvosNoBanco,
-  salvarNaoCadastrados,
-  salvarNfsFinalizadas
-} from '@/utils'
+import { getEntradaNfURL, getEstoqueURL } from './regex'
 
 dotenv.config()
 
-const URL = process.env.URL
-const CNPJ = process.env.CNPJ
-const USUARIO = process.env.USUARIO
-const SENHA = process.env.SENHA
+const url = process.env.URL
+const cnpj = process.env.CNPJ
+const user = process.env.USER
+const password = process.env.PASSWORD
 
-export async function realizarLoginENavegarParaEstoque() {
-  let tentativas = 0
-  while (tentativas < 3) {
+export async function loginAndNavigateToEstoque() {
+  let attempts = 0
+  while (attempts < 3) {
     try {
-      if (tentativas > 0) {
-        const mensagem = 'Retentando...'
-        logger.info(mensagem)
-        print(mensagem)
+      if (attempts > 0) {
+        const message = 'Retentando...'
+        logger.info(message)
+        print(message)
       }
-      if (!URL || !CNPJ || !USUARIO || !SENHA) {
+      if (!URL || !cnpj || !user || !password) {
         throw new Error('Insira as credenciais de acesso no arquivo .env')
       }
-      const rIniciar = await iniciar(URL)
-      if (!rIniciar) return
+      const startData = await start(url || '')
+      if (!startData) return
 
-      const { browser, pagina } = rIniciar
+      const { browser, page } = startData
 
       const dashboard = await login({
-        pagina,
+        page,
         browser,
-        cnpj: CNPJ,
-        usuario: USUARIO,
-        senha: SENHA
+        cnpj,
+        user,
+        password
       })
       if (!dashboard) return
 
       const dashboardHTML = await dashboard.content()
-      const estoqueURL = obterEstoqueURL(dashboardHTML)
+      const estoqueURL = getEstoqueURL(dashboardHTML)
       if (!estoqueURL) throw new Error('URL de Estoque não encontrada!')
 
-      const estoque = await navegarParaEstoque(browser, estoqueURL)
+      const estoque = await navigateToEstoque(browser, estoqueURL)
       if (!estoque) return
 
       return { estoque, browser }
     } catch (error) {
-      tentativas++
+      attempts++
       logger.error(error)
       print(error as string)
     }
   }
 }
 
-export async function obterTodasAsNotasPendentes(
-  estoque: Page,
-  browser: Browser
-) {
-  let tentativas = 0
-  while (tentativas < 3) {
-    if (tentativas > 0) {
-      const mensagem = 'Retentando...'
-      logger.info(mensagem)
-      print(mensagem)
+export async function getAllPendingNotes(estoque: Page, browser: Browser) {
+  let attempts = 0
+  while (attempts < 3) {
+    if (attempts > 0) {
+      const message = 'Retentando...'
+      logger.info(message)
+      print(message)
     }
     try {
       const estoqueHTML = await estoque.content()
-      const entradaNfURL = obterEntradaNfURL(estoqueHTML)
+      const entradaNfURL = getEntradaNfURL(estoqueHTML)
       if (!entradaNfURL) throw new Error('URL de Entrada NF não encontrada!')
 
-      const entradaNF = await navegarParaEntradaNF(browser, entradaNfURL)
+      const entradaNF = await navigateToEntradaNf(browser, entradaNfURL)
       if (!entradaNF) return
 
-      await buscarNotasPendentes(entradaNF)
+      await getPendingNotes(entradaNF)
 
-      await selecionarQuantidadeDeItensPagina(entradaNF)
+      await selectNumberOfItemsPerPage(entradaNF)
 
-      let pagina = 1
-      const rPendentes = await obterNotasPendentesNaPagina(entradaNF, pagina)
+      let page = 1
+      const rPendentes = await getPendingNotesOnThePage(entradaNF, page)
       if (!rPendentes) return
 
-      const { nfs: n, proximaPaginaId: id } = rPendentes
+      const { nfs: n, nextPageId: id } = rPendentes
 
       const nfs = [...n]
 
-      let proximaPaginaId = id
-      while (proximaPaginaId) {
-        pagina++
-        await navegarParaProximaPagina(entradaNF, proximaPaginaId)
-        const rPendentes = await obterNotasPendentesNaPagina(entradaNF, pagina)
+      let nextPageId = id
+      while (nextPageId) {
+        page++
+        await navigateToNextPage(entradaNF, nextPageId)
+        const rPendentes = await getPendingNotesOnThePage(entradaNF, page)
         if (!rPendentes) return
 
-        const { nfs: n, proximaPaginaId: id } = rPendentes
+        const { nfs: n, nextPageId: id } = rPendentes
 
         nfs.push(...n)
-        proximaPaginaId = id
+        nextPageId = id
       }
       return { nfs, browser }
     } catch (error) {
-      tentativas++
+      attempts++
       logger.error(error)
       print(error as string)
       browser.close()
-      const r = await realizarLoginENavegarParaEstoque()
+      const r = await loginAndNavigateToEstoque()
       if (!r) throw new Error('Não foi possível atualizar o browser')
       const { browser: b, estoque: e } = r
       browser = b
@@ -131,104 +123,100 @@ export async function obterTodasAsNotasPendentes(
   }
 }
 
-export async function realizarAcoes(nfs: TNF[], browser: Browser) {
+export async function startActions(nfs: TNote[], browser: Browser) {
   print(
     `Realizando ações em ${nfs.length} not${nfs.length > 1 ? 'as' : 'a'}...`
   )
 
-  const relatorioNaoAssociados: TRelatorio[] = []
+  const unassociatedReport: TReport[] = []
 
-  let tentativas = 0
+  let attempts = 0
   let i = 0
-  while (i < nfs.length && tentativas < 10) {
+  while (i < nfs.length && attempts < 10) {
     try {
       const nf = nfs[i]
-      const { descricao, codigo } = nf
+      const { description, code } = nf
 
-      const rItensDsNF = await navegarParaItensDaNF(codigo, browser)
-      if (!rItensDsNF) return
+      const itensNfData = await navigateToItensDaNF(code, browser)
+      if (!itensNfData) return
 
-      const { itensNf, itensNfURL } = rItensDsNF
-      const descricaoDaNF = `${i + 1}  - ${descricao} [${itensNfURL}]`
-      print(descricaoDaNF)
+      const { itensNf, itensNfURL } = itensNfData
+      const descriptionDaNF = `${i + 1}  - ${description} [${itensNfURL}]`
+      print(descriptionDaNF)
 
-      relatorioNaoAssociados.push({
-        nf: descricaoDaNF,
-        produtos: []
+      unassociatedReport.push({
+        nf: descriptionDaNF,
+        products: []
       })
 
-      await selecionarQuantidadeDeItensPagina(itensNf)
+      await selectNumberOfItemsPerPage(itensNf)
 
-      const rNaoAssociados = await obterProdutosNaoAssociados(itensNf)
-      if (!rNaoAssociados) return
+      const unassociatedData = await getUnassociatedProducts(itensNf)
+      if (!unassociatedData) return
 
-      const { produtosNaoAssociados: pna, proximaPaginaId: id } = rNaoAssociados
-      let produtosNaoAssociados = [...pna]
+      const { products: unassociated, nextPageId: id } = unassociatedData
+      let products = [...unassociated]
 
-      let proximaPaginaId = id
-      let pagina = 1
-      let primeiraVarredura = true
+      let nextPageId = id
+      let page = 1
+      let firstScan = true
 
-      while (primeiraVarredura || proximaPaginaId) {
-        if (proximaPaginaId && !primeiraVarredura) {
-          await navegarParaProximaPagina(itensNf, proximaPaginaId)
+      while (firstScan || nextPageId) {
+        if (nextPageId && !firstScan) {
+          await navigateToNextPage(itensNf, nextPageId)
 
-          const rNaoAssociados = await obterProdutosNaoAssociados(itensNf)
-          if (!rNaoAssociados) return
+          const unassociatedData = await getUnassociatedProducts(itensNf)
+          if (!unassociatedData) return
 
-          const { produtosNaoAssociados: pna, proximaPaginaId: id } =
-            rNaoAssociados
-          produtosNaoAssociados = [...pna]
-          proximaPaginaId = id
-          pagina++
-          print(`Página ${pagina}`)
+          const { products: unassociated, nextPageId: id } = unassociatedData
+          products = [...unassociated]
+          nextPageId = id
+          page++
+          print(`Página ${page}`)
         }
-        primeiraVarredura = false
+        firstScan = false
 
-        if (produtosNaoAssociados.length === 0) {
-          print('Todos os produtos já foram associados!')
-          if (proximaPaginaId) continue
+        if (products.length === 0) {
+          print('Todos os products já foram associados!')
+          if (nextPageId) continue
           else break
         }
 
-        print(
-          `Quantidade de produtos não associados: ${produtosNaoAssociados.length}`
-        )
-        for (let j = 0; j < produtosNaoAssociados.length; j++) {
-          const produto = produtosNaoAssociados[j]
-          const { nome, barraXML, barra } = produto
-          const b = barraXML === barra ? barraXML : `${barraXML} - ${barra}`
-          const descricaoDoProduto = `${j + 1} - ${nome} - ${b}`
-          print(descricaoDoProduto)
-          const r = await associarProduto(produto, itensNf)
-          const p: TProdutoDB = {
-            nf: descricaoDaNF,
-            nome: descricaoDoProduto,
+        print(`Quantidade de products não associados: ${products.length}`)
+        for (let j = 0; j < products.length; j++) {
+          const product = products[j]
+          const { name, xmlBar, bar } = product
+          const b = xmlBar === bar ? xmlBar : `${xmlBar} - ${bar}`
+          const productDescription = `${j + 1} - ${name} - ${b}`
+          print(productDescription)
+          const r = await associateProduct(product, itensNf)
+          const p: TDataDB = {
+            note: descriptionDaNF,
+            product: productDescription,
             createdAt: new Date().toISOString()
           }
           if (r) {
             try {
-              await salvarProdutoAssociado(p)
+              await saveAssociatedProductInDB(p)
             } catch (error) {
               logger.error(error)
               print(error as string)
-              await salvarAssociadosQueNaoForamSalvosNoBanco(p)
             }
           } else {
-            await salvarNaoCadastrados(p)
-            relatorioNaoAssociados[i].produtos.push(descricaoDoProduto)
+            await saveUnresgisteredProduct(p)
+            unassociatedReport[i].products.push(productDescription)
           }
         }
       }
-      if (relatorioNaoAssociados[i].produtos.length === 0)
-        await salvarNfsFinalizadas(nf)
+      if (unassociatedReport[i].products.length === 0)
+        await saveFinishedNote(nf)
       i++
     } catch (error) {
-      tentativas++
+      attempts++
       logger.error(error)
       print(error as string)
       browser.close()
-      const r = await realizarLoginENavegarParaEstoque()
+      const r = await loginAndNavigateToEstoque()
       if (!r) throw new Error('Não foi possível atualizar o browser')
       const { browser: b } = r
       browser = b

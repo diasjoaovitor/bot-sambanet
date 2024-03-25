@@ -1,22 +1,22 @@
-export type TProduto = {
-  nf: string
-  nome: string
+export type TData = {
+  note: string
+  product: string
 }
 
-export type TDadosDoProduto = {
+export type TProduct = {
   id: string
-  nome: string
-  barra: string
-  barraXML: string
+  name: string
+  bar: string
+  xmlBar: string
 }
 
-export type TNF = {
-  descricao: string
-  codigo: string
-  numero: string
+export type TNote = {
+  description: string
+  code: string
+  number: string
 }
 
-export type TRelatorio = {
+export type TReport = {
   nf: string
-  produtos: string[]
+  products: string[]
 }

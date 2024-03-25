@@ -1,58 +1,52 @@
-import type { TProdutoDB } from '@/db'
-import type { TNF } from '../bot/types'
+import type { TDataDB } from '@/db'
+import type { TNote } from '../bot/types'
 import fs, { promises as pfs } from 'fs'
 import { io, logger } from '@/config'
 
-const arquivoNfs = 'nfs-finalizadas.txt'
+const notesFileName = 'nfs-finalizadas.txt'
 
-async function salvarJson(arquivo: string, conteudo: TProdutoDB) {
-  if (fs.existsSync(arquivo)) {
-    const json = JSON.parse(await pfs.readFile(arquivo, 'utf-8'))
-    await pfs.writeFile(arquivo, JSON.stringify([...json, conteudo], null, 2))
+async function salveJson(fileName: string, content: TDataDB) {
+  if (fs.existsSync(fileName)) {
+    const json = JSON.parse(await pfs.readFile(fileName, 'utf-8'))
+    await pfs.writeFile(fileName, JSON.stringify([...json, content], null, 2))
     return
   }
-  await pfs.writeFile(arquivo, JSON.stringify([conteudo], null, 2))
+  await pfs.writeFile(fileName, JSON.stringify([content], null, 2))
 }
 
 export async function delay(value?: number) {
   await new Promise((resolve) => setTimeout(resolve, value || 5000))
 }
 
-export async function salvarNfsFinalizadas(nf: TNF) {
-  !fs.existsSync(arquivoNfs) && (await pfs.writeFile(arquivoNfs, ''))
-  await pfs.appendFile(arquivoNfs, `${nf.codigo}-${nf.numero}\n`)
+export async function saveFinishedNote(nf: TNote) {
+  !fs.existsSync(notesFileName) && (await pfs.writeFile(notesFileName, ''))
+  await pfs.appendFile(notesFileName, `${nf.code}-${nf.number}\n`)
 }
 
-export async function limparNfsFinalizadas() {
-  await pfs.writeFile(arquivoNfs, '')
+export async function clearFinishedNotes() {
+  await pfs.writeFile(notesFileName, '')
 }
 
-export async function salvarNaoCadastrados(produto: TProdutoDB) {
-  await salvarJson('nao-cadastrados.json', produto)
+export async function saveUnresgisteredProduct(product: TDataDB) {
+  await salveJson('nao-cadastrados.json', product)
 }
 
-export async function limparNaoCadastrados() {
+export async function clearUngisteredProduct() {
   await pfs.writeFile('nao-cadastrados.json', JSON.stringify([]))
 }
 
-export async function salvarAssociadosQueNaoForamSalvosNoBanco(
-  produto: TProdutoDB
-) {
-  await salvarJson('associados-que-nao-foram-salvos-no-banco.json', produto)
-}
-
-export async function obterNfsFinalizadas() {
-  if (!fs.existsSync(arquivoNfs)) return []
-  const conteudo = await pfs.readFile(arquivoNfs, 'utf-8')
-  const linhas = conteudo.split(/\r?\n/)
-  return linhas.map((linha) => {
-    const [codigo, numero] = linha.split('-')
-    return { codigo, numero }
+export async function getFinishedNotes() {
+  if (!fs.existsSync(notesFileName)) return []
+  const content = await pfs.readFile(notesFileName, 'utf-8')
+  const lines = content.split(/\r?\n/)
+  return lines.map((line) => {
+    const [code, number] = line.split('-')
+    return { code, number }
   })
 }
 
-export function print(mensagem: string) {
-  io.emit('log', mensagem)
-  console.log(`\n> ${mensagem}`)
-  logger.info(mensagem)
+export function print(message: string) {
+  io.emit('log', message)
+  console.log(`\n> ${message}`)
+  logger.info(message)
 }

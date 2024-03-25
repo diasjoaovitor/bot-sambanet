@@ -1,6 +1,6 @@
-import type { TProdutoDB } from './types'
-import { associadosCollection } from '@/config'
+import type { TDataDB } from './types'
+import { associatedCollection } from '@/config'
 
-export const salvarProdutoAssociado = async (produto: TProdutoDB) => {
-  await associadosCollection.insertOne(produto)
+export const saveAssociatedProductInDB = async (product: TDataDB) => {
+  await associatedCollection.insertOne(product)
 }
