@@ -3,5 +3,4 @@ node_modules
 *.log
 *.txt
 dist
-associados-que-nao-foram-salvos-no-banco.json
 nao-cadastrados.json
