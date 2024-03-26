@@ -2,6 +2,14 @@
 
 Script desenvolvido para automatizar a associação de produtos durante o lançamento de Notas Fiscais utilizando o software [Samb@net](https://getway.com.br/universo-sambanet/)
 
+## Tecnologias
+
+- [Puppeteer](https://pptr.dev/)
+- [Express](https://expressjs.com/pt-br/)
+- [Socket.io](https://socket.io/)
+- [MongoDB Atlas](https://www.mongodb.com/pt-br/cloud/atlas)
+- [Wiston](https://github.com/winstonjs/winston)
+
 ## Descrição dos Eventos
 
 1. Realizar Login
@@ -20,11 +28,11 @@ Script desenvolvido para automatizar a associação de produtos durante o lança
 
 ![Entrada NF](./.github/images/entrada-nf-page.png)
 
-O script irá navegar para a próxima página até concluir a busca de todas as notas pendentes, após esse processo que será feita a navegação para `Itens da NF` 
+O script irá navegar para a próxima página até concluir a busca de todas as notas pendentes, após esse processo que será feita a navegação para `Itens da NF`
 
 ![Entrada NF Próxima Página](./.github/images/entrada-nf-next-page.png)
 
-5. Selecionar 60 Registros por Página e Associar Produtos 
+5. Selecionar 60 Registros por Página e Associar Produtos
 
 ![Produto a ser associado](./.github/images/produto-a-associar.png)
 
@@ -38,11 +46,11 @@ O script irá navegar para a próxima página até concluir a busca de todas as 
 
 No caso acima, também foi calculado o código de barras da unidade do produto (7898920795037), a partir do código de barras da embalagem (17898920795034). Essa explicação pode ser conferida no link: https://diasjoaovitor.github.io/utils/
 
-Da mesma forma que ocorre em `Entrada NF`, o script irá navegar para próxima página até finalizar todos os produto da nota 
+Da mesma forma que ocorre em `Entrada NF`, o script irá navegar para próxima página até finalizar todos os produto da nota
 
 ## Como Executar
 
-Instalação das dependências externas
+### Instalação das dependências externas
 
 ```
 sudo apt-get install python3-pip
@@ -51,22 +59,36 @@ python3 -m playwright install
 python3 -m playwright install-deps
 ```
 
-Instalação das dependências internas
+### Instalação das dependências internas
 
 ```
-cd sambanet-associate
+cd bot-sambanet
 npm i
 ```
 
-Execução
+### Configuração das variáveis de ambiente
 
-O comando abaixo quando rodado pela primeira vez, irá percorrer notas as notas pendentes
+Renomeie o arquivo `.env.example` para `.env` e atribua os valores:
+
+```
+URL=
+CNPJ=
+USER=
+PASSWORD=
+MONGO_URI=
+```
+
+### Execução
 
 ```
 npm start
+
+Acesse: http://localhost:5000
 ```
 
-O script salva as notas que estão com todos os produtos associados num arquivo
+![Home](./.github/images//home.PNG)
+
+Ao iniciar pela primeira vez, o script irá percorrer todas as notas pendentes, e irá salvar as notas que estão com todos os produtos associados no arquivo `nfs-finalizadas.txt`
 
 ```
 4642-11751
@@ -75,63 +97,212 @@ O script salva as notas que estão com todos os produtos associados num arquivo
 4639-36
 ```
 
-Ao rodar o comando `npm start` pela segunda vez, o script irá ignorar todas as notas finalizadas
+Sempre que o usuário clicar em `Iniciar`, o script irá ignorar todas as notas que estão salvas no arquivo citado, evitando verificar notas que já estão finalizadas novamente.
 
-Caso deseje percorrer todas as notas novamente, há duas opções, excluir o arquivo `nfs-finalizadas.txt` ou executar o comando com o parâmetro:
-
-```
-npm start all
-```
-
-Caso deseje executar o script em notas especificas, basta passar os números das notas como parâmetro, como no exemplo abaixo:
+Caso deseje percorrer todas as notas, basta clicar em `Resetar`
 
 ![Preview](./.github/images/preview.gif)
 
 ## Logs
 
-São gerados três arquivos de logs
-
-**app.log**: Mostra todas as ações do script
+Todos os logs ficam salvos no arquivo `app.log`:
 
 ```log
-{"level":"info","message":"Iniciando...","timestamp":"2024-02-27T20:56:20.330Z"}
-{"level":"info","message":"Login [https://sambanet.getway.com.br/auth/login]","timestamp":"2024-02-27T20:56:22.022Z"}
-{"level":"info","message":"Dashboard [https://sambanet.getway.com.br/inicio/dashboard]","timestamp":"2024-02-27T20:56:23.869Z"}
-{"level":"info","message":"Estoque [https://www.sambanet.net.br/sambanet/estoque/Login.aspx?CodLogin=FFqfqDSbaVi8uoWp5ZJ7xReQ==]","timestamp":"2024-02-27T20:56:23.884Z"}
-{"level":"info","message":"Entrada NF [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNfRM.aspx?key=1730979564]","timestamp":"2024-02-27T20:56:26.200Z"}
-{"level":"info","message":"Buscando notas pendentes...","timestamp":"2024-02-27T20:56:27.413Z"}
-{"level":"info","message":"Selecionando quantidade de registros por página...","timestamp":"2024-02-27T20:56:27.868Z"}
-{"level":"info","message":"Obtendo notas pendentes na página 1...","timestamp":"2024-02-27T20:56:37.896Z"}
-{"level":"info","message":"Quantidade de notas pendentes 57","timestamp":"2024-02-27T20:56:37.906Z"}
-{"level":"info","message":"Realizando ações em 3 notas...","timestamp":"2024-02-27T20:56:37.909Z"}
-{"level":"info","message":"1  - 11751 - FABRICA DE DOCES ALIANCA EIRELI [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=4642]","timestamp":"2024-02-27T20:56:39.968Z"}
-{"level":"info","message":"Selecionando quantidade de registros por página...","timestamp":"2024-02-27T20:56:39.969Z"}
-{"level":"info","message":"Todos os produtos já foram associados!","timestamp":"2024-02-27T20:56:50.048Z"}
-{"level":"info","message":"2  - 539314 - TEIU INDUSTRIA E COMERCIO LTDA [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=4626]","timestamp":"2024-02-27T20:56:51.214Z"}
-{"level":"info","message":"Selecionando quantidade de registros por página...","timestamp":"2024-02-27T20:56:51.215Z"}
-{"level":"info","message":"Quantidade de produtos não associados: 1","timestamp":"2024-02-27T20:57:01.301Z"}
-{"level":"info","message":"1 - GEL PINHO ATILA MULTIUSO LIMPEZA PESADA 12X1 KG - 17896394807338 - 7896394807331","timestamp":"2024-02-27T20:57:01.302Z"}
-{"level":"info","message":"Tentando associar produto...","timestamp":"2024-02-27T20:57:01.303Z"}
-{"level":"info","message":"O produto não está cadastrado!","timestamp":"2024-02-27T20:57:21.729Z"}
-{"level":"info","message":"3  - 111958 - VIDA COMERCIO E INDU DE ALIM LTDA [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=4374]","timestamp":"2024-02-27T20:57:28.199Z"}
-{"level":"info","message":"Selecionando quantidade de registros por página...","timestamp":"2024-02-27T20:57:28.200Z"}
-{"level":"info","message":"Quantidade de produtos não associados: 1","timestamp":"2024-02-27T20:57:38.275Z"}
-{"level":"info","message":"1 - ACUCAR REFINADO 10X1 VIDA - 17898920795034 - 7898920795037","timestamp":"2024-02-27T20:57:38.276Z"}
-{"level":"info","message":"Tentando associar produto...","timestamp":"2024-02-27T20:57:38.276Z"}
-{"level":"info","message":"Produto associado!","timestamp":"2024-02-27T20:58:03.827Z"}
-{"level":"info","message":"Associados: ","timestamp":"2024-02-27T20:58:03.830Z"}
-{"level":"info","message":"Não Associados: ","timestamp":"2024-02-27T20:58:03.831Z"}
-{"level":"info","message":"Execução finalizada!","timestamp":"2024-02-27T20:58:03.831Z"}
+{
+  message: 'Conectando ao banco de dados...',
+  level: 'info',
+  timestamp: '2024-03-26T19:06:30.751Z'
+}
+{
+  message: 'Conectado!',
+  level: 'info',
+  timestamp: '2024-03-26T19:06:31.339Z'
+}
+{
+  message: 'Acesse: http://localhost:5000',
+  level: 'info',
+  timestamp: '2024-03-26T19:06:31.340Z'
+}
+{
+  message: 'Iniciando...',
+  level: 'info',
+  timestamp: '2024-03-26T19:06:36.778Z'
+}
+{
+  message: 'Login [https://sambanet.getway.com.br/auth/login]',
+  level: 'info',
+  timestamp: '2024-03-26T19:06:38.973Z'
+}
+{
+  message: 'Dashboard [https://sambanet.getway.com.br/inicio/dashboard]',
+  level: 'info',
+  timestamp: '2024-03-26T19:06:40.685Z'
+}
+{
+  message: 'Estoque [https://www.sambanet.net.br/sambanet/estoque/Login.aspx?CodLogin=FFNxDWBuumMTEM7IPf2fYHYA==]',
+  level: 'info',
+  timestamp: '2024-03-26T19:06:40.797Z'
+}
+{
+  message: 'Entrada NF [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNfRM.aspx?key=2015616865]',
+  level: 'info',
+  timestamp: '2024-03-26T19:06:50.843Z'
+}
+{
+  message: 'Buscando notas pendentes...',
+  level: 'info',
+  timestamp: '2024-03-26T19:06:53.702Z'
+}
+{
+  message: 'Selecionando quantidade de registros por página...',
+  level: 'info',
+  timestamp: '2024-03-26T19:06:54.701Z'
+}
+{
+  message: 'Obtendo notas pendentes na página 1...',
+  level: 'info',
+  timestamp: '2024-03-26T19:07:04.741Z'
+}
+{
+  message: 'Quantidade de notas pendentes 60',
+  level: 'info',
+  timestamp: '2024-03-26T19:07:04.746Z'
+}
+{
+  message: 'Realizando ações em 40 notas...',
+  level: 'info',
+  timestamp: '2024-03-26T19:07:04.749Z'
+}
+{
+  message: '1  - 1368569 - CASA PADIM ATAC. DIST. DE ALIM LTDA [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=5123]',
+  level: 'info',
+  timestamp: '2024-03-26T19:07:08.960Z'
+}
+{
+  message: 'Selecionando quantidade de registros por página...',
+  level: 'info',
+  timestamp: '2024-03-26T19:07:08.961Z'
+}
+{
+  message: 'Quantidade de produtos não associados: 1',
+  level: 'info',
+  timestamp: '2024-03-26T19:07:19.024Z'
+}
+{
+  message: '1 - FARINHA MANDIOCA PADIM AMARELA 1KG - 7898902334377',
+  level: 'info',
+  timestamp: '2024-03-26T19:07:19.025Z'
+}
+{
+  message: 'Tentando associar produto...',
+  level: 'info',
+  timestamp: '2024-03-26T19:07:19.026Z'
+}
+{
+  message: 'O produto não está cadastrado!',
+  level: 'info',
+  timestamp: '2024-03-26T19:07:39.191Z'
+}
+{
+  ...
+}
+{
+  message: '7  - 3464375 - SAO ROQUE DISTR. DE PROD. ALI.LTDA [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=5113]',
+  level: 'info',
+  timestamp: '2024-03-26T19:12:55.205Z'
+}
+{
+  message: 'Selecionando quantidade de registros por página...',
+  level: 'info',
+  timestamp: '2024-03-26T19:12:55.205Z'
+}
+{
+  message: 'Quantidade de products não associados: 1',
+  level: 'info',
+  timestamp: '2024-03-26T19:13:05.237Z'
+}
+{
+  message: '1 - CREME TRAT ELSEVE GLYCOLIC GLOSS 300G - 7908615053110',
+  level: 'info',
+  timestamp: '2024-03-26T19:13:05.237Z'
+}
+{
+  message: 'Tentando associar produto...',
+  level: 'info',
+  timestamp: '2024-03-26T19:13:05.238Z'
+}
+{
+  message: 'Produto associado!',
+  level: 'info',
+  timestamp: '2024-03-26T19:13:30.508Z'
+}
+{
+  message: '8  - 3464374 - SAO ROQUE DISTR. DE PROD. ALI.LTDA [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=5112]',
+  level: 'info',
+  timestamp: '2024-03-26T19:13:32.414Z'
+}
+{
+  message: 'Selecionando quantidade de registros por página...',
+  level: 'info',
+  timestamp: '2024-03-26T19:13:32.415Z'
+}
+{
+  message: 'Todos os produtos já foram associados!',
+  level: 'info',
+  timestamp: '2024-03-26T19:13:42.458Z'
+}
+{
+  ...
+}
+{
+  message: '40  - 1629415 - NORSA REFRIGERANTE LTDA [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=4855]',
+  level: 'info',
+  timestamp: '2024-03-26T19:40:00.181Z'
+}
+{
+  message: 'Selecionando quantidade de registros por página...',
+  level: 'info',
+  timestamp: '2024-03-26T19:40:00.182Z'
+}
+{
+  message: 'Todos os produtos já foram associados!',
+  level: 'info',
+  timestamp: '2024-03-26T19:40:10.247Z'
+}
+{
+  message: 'Execução finalizada!',
+  level: 'info',
+  timestamp: '2024-03-26T19:40:10.249Z'
+}
+
 ```
 
-**associados.log**: Mostra todos os produtos associados
+O aquivo `nao-cadastrados.json` é sobrescrito a cada execução, e é útil para identificar os produtos que ainda faltam cadastrar
 
-```log
-{"level":"info","message":{"barra":"7898920795037","barraXML":"17898920795034","id":"ContentPlaceHolder1_gvDados_lnkAssociar_0","nome":"ACUCAR REFINADO 10X1 VIDA","url":"https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=4374"},"timestamp":"2024-02-27T20:58:03.828Z"}
-```
-
-**nao-cadastrados.log**: Mostra todos os produtos que não puderam ser associados
-
-```log
-{"level":"info","message":{"barra":"7896394807331","barraXML":"17896394807338","id":"ContentPlaceHolder1_gvDados_lnkAssociar_1","nome":"GEL PINHO ATILA MULTIUSO LIMPEZA PESADA 12X1 KG","url":"https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=4626"},"timestamp":"2024-02-27T20:57:21.729Z"}
+```json
+[
+  {
+    "note": "1  - 1368569 - CASA PADIM ATAC. DIST. DE ALIM LTDA [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=5123]",
+    "product": "1 - FARINHA MANDIOCA PADIM AMARELA 1KG - 7898902334377",
+    "createdAt": "2024-03-26T19:07:44.252Z"
+  },
+  {
+    "note": "2  - 505153 - ESTRELA DISTIBUICAO EIRELI [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=5122]",
+    "product": "1 - BISC GUNE MAXIMUS RECH MORANGO 100G - 618341475137",
+    "createdAt": "2024-03-26T19:08:21.048Z"
+  },
+  {
+    "note": "2  - 505153 - ESTRELA DISTIBUICAO EIRELI [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=5122]",
+    "product": "2 - BISC GUNE MAXIMUS RECH CHOCOLATE 100G - 618341475120",
+    "createdAt": "2024-03-26T19:08:46.324Z"
+  },
+  {
+    ...
+  },
+  {
+    "note": "34  - 611578 - ZARB DISTRIBUIDORA DO BRASIL LTDA [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=4930]",
+    "product": "9 - GD CR PENT 1KG VITAMINA E QUINOA CX/12/UN QTD. 3.00 CX - 7897158727025",
+    "createdAt": "2024-03-26T19:39:00.965Z"
+  }
+]
 ```
