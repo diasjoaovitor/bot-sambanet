@@ -14,5 +14,5 @@ server.listen(port, async () => {
   print('Conectando ao banco de dados...')
   await dbConnection()
   print('Conectado!')
-  print('Acesse: http://localhost:5000')
+  print(`Acesse: http://localhost:${port}`)
 })
