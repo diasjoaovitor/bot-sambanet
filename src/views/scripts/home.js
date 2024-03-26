@@ -5,7 +5,7 @@ const start = document.getElementById('start')
 const clear = document.getElementById('clear')
 const reset = document.getElementById('reset')
 
-const notes = document.querySelector('input').value
+const notes = document.querySelector('input')
 
 const render = (msg) => {
   const [text, link] = msg.split('[')
@@ -21,7 +21,7 @@ const render = (msg) => {
 start.onclick = () => {
   start.setAttribute('disabled', true)
   reset.setAttribute('disabled', true)
-  socket.emit('script', !notes ? 'start' : notes)
+  socket.emit('script', !notes.value ? 'start' : notes.value)
 }
 
 clear.onclick = () => {
