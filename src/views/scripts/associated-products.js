@@ -4,7 +4,6 @@
 
   const formatData = (data) => {
     const notes = Array.from(new Set(data.map(({ note }) => note)))
-    console.log(notes)
     const d = []
     notes.forEach((note) => {
       d.push({
