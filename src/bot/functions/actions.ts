@@ -177,12 +177,12 @@ export async function startActions(nfs: TNote[], browser: Browser) {
         firstScan = false
 
         if (products.length === 0) {
-          print('Todos os products já foram associados!')
+          print('Todos os produtos já foram associados!')
           if (nextPageId) continue
           else break
         }
 
-        print(`Quantidade de products não associados: ${products.length}`)
+        print(`Quantidade de produtos não associados: ${products.length}`)
         for (let j = 0; j < products.length; j++) {
           const product = products[j]
           const { name, xmlBar, bar } = product
