@@ -2,7 +2,7 @@ import { bot } from './bot'
 import { dbConnection, io, server } from './config'
 import { print } from './utils'
 
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 3000
 
 io.on('connection', (socket) => {
   socket.on('script', async (msg) => {
