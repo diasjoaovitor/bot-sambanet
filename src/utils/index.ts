@@ -4,6 +4,7 @@ import fs, { promises as pfs } from 'fs'
 import { io, logger } from '@/config'
 
 const notesFileName = 'nfs-finalizadas.txt'
+const unregisteredFileName = 'nao-cadastrados.json'
 
 async function salveJson(fileName: string, content: TDataDB) {
   if (fs.existsSync(fileName)) {
@@ -27,12 +28,19 @@ export async function clearFinishedNotes() {
   await pfs.writeFile(notesFileName, '')
 }
 
-export async function saveUnresgisteredProduct(product: TDataDB) {
-  await salveJson('nao-cadastrados.json', product)
+export async function saveUnregisteredProduct(product: TDataDB) {
+  await salveJson(unregisteredFileName, product)
 }
 
-export async function clearUngisteredProduct() {
-  await pfs.writeFile('nao-cadastrados.json', JSON.stringify([]))
+export async function clearUnregisteredProduct() {
+  await pfs.writeFile(unregisteredFileName, JSON.stringify([]))
+}
+
+export async function getUnregisteredProducts() {
+  if (!fs.existsSync(unregisteredFileName)) return []
+  return JSON.parse(
+    await pfs.readFile(unregisteredFileName, 'utf-8')
+  ) as TDataDB[]
 }
 
 export async function getFinishedNotes() {

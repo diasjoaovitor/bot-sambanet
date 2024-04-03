@@ -2,7 +2,7 @@ import '../config/alias-config'
 import type { Browser } from 'puppeteer'
 import {
   clearFinishedNotes,
-  clearUngisteredProduct,
+  clearUnregisteredProduct,
   getFinishedNotes,
   print
 } from '@/utils'
@@ -17,7 +17,7 @@ export async function bot({ option }: { option: string }) {
   let browser: Browser
 
   try {
-    await clearUngisteredProduct()
+    await clearUnregisteredProduct()
 
     const estoqueData = await loginAndNavigateToEstoque()
     if (!estoqueData) return

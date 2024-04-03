@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 import type { TNote, TReport } from '../types'
 import { type TDataDB, saveAssociatedProductInDB } from '@/db'
 import { logger } from '@/config'
-import { print, saveFinishedNote, saveUnresgisteredProduct } from '@/utils'
+import { print, saveFinishedNote, saveUnregisteredProduct } from '@/utils'
 import {
   associateProduct,
   getPendingNotes,
@@ -203,7 +203,7 @@ export async function startActions(nfs: TNote[], browser: Browser) {
               print(error as string)
             }
           } else {
-            await saveUnresgisteredProduct(p)
+            await saveUnregisteredProduct(p)
             unassociatedReport[i].products.push(productDescription)
           }
         }

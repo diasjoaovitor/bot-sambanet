@@ -1,8 +1,8 @@
 import type { Browser, Page } from 'puppeteer'
 import puppeteer from 'puppeteer'
-import type { TNote, TProduct } from '../types'
 import { logger } from '@/config'
 import { delay, print } from '@/utils'
+import type { TNote, TProduct } from '../types'
 
 export async function start(url: string) {
   try {
@@ -124,7 +124,7 @@ export async function getPendingNotesOnThePage(
           })
       })
       let nextPageId = null
-      const pages = document.querySelectorAll('.pagetion')
+      const pages = document.querySelectorAll('.pagination')
       pages.forEach((page) => {
         if (page.textContent === 'Próximo') nextPageId = page.id
       })
