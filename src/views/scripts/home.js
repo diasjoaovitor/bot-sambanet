@@ -7,6 +7,16 @@ const reset = document.getElementById('reset')
 
 const notes = document.querySelector('input')
 
+const disableButtons = () => {
+  !start.hasAttribute('disabled') && start.setAttribute('disabled', true)
+  !reset.hasAttribute('disabled') && reset.setAttribute('disabled', true)
+}
+
+const removeDisable = () => {
+  start.removeAttribute('disabled')
+  reset.removeAttribute('disabled')
+}
+
 const render = (msg) => {
   const [text, link] = msg.split('[')
   const li = document.createElement('li')
@@ -19,8 +29,7 @@ const render = (msg) => {
 }
 
 start.onclick = () => {
-  start.setAttribute('disabled', true)
-  reset.setAttribute('disabled', true)
+  disableButtons()
   socket.emit('script', !notes.value ? 'start' : notes.value)
 }
 
@@ -29,15 +38,17 @@ clear.onclick = () => {
 }
 
 reset.onclick = () => {
-  start.setAttribute('disabled', true)
-  reset.setAttribute('disabled', true)
+  disableButtons()
   socket.emit('script', 'reset')
 }
 
 socket.on('log', (msg) => {
+  disableButtons()
   render(msg)
-  if (msg === 'Execução finalizada!' || msg === 'Não foi possível finalizar!') {
-    start.removeAttribute('disabled', true)
-    reset.removeAttribute('disabled', true)
+  if (
+    msg === 'Execução finalizada!' ||
+    msg === 'Error: Não foi possível finalizar!'
+  ) {
+    removeDisable()
   }
 })
