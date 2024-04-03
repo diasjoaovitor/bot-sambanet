@@ -9,38 +9,25 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #2A2F32;
+  background-color: #2a2f32;
   padding: 20px;
 }
 
-header {
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.pages {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.pages span {
-  margin: 0 5px;
-}
-
-input, button {
+input,
+button {
   height: 40px;
   border-radius: 8px;
   font-size: 16px;
-  background-color: #B1B3B5;
+  background-color: #b1b3b5;
 }
 
-button[disabled=true] {
+button[disabled='true'] {
   background-color: gray;
 }
 
 input {
   width: 100%;
-  flex-grow: 1;  
+  flex-grow: 1;
   padding: 10px;
   margin-top: 10px;
 }
@@ -56,7 +43,7 @@ button:hover {
   background-color: #074344;
 }
 
-button[disabled=true]:hover {
+button[disabled='true']:hover {
   background-color: gray;
 }
 
@@ -74,11 +61,11 @@ main > ul > li:nth-child(odd) {
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #F4F4F4;
+  background-color: #f4f4f4;
 }
 ::-webkit-scrollbar {
   width: 6px;
-  background: #F4F4F4;
+  background: #f4f4f4;
 }
 ::-webkit-scrollbar-thumb {
   background: #dad7d7;

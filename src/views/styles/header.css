@@ -1,0 +1,13 @@
+header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+nav {
+  margin-top: 20px;
+  text-align: center;
+}
+
+nav span {
+  margin: 0 5px;
+}

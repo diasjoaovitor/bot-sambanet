@@ -1,0 +1,23 @@
+doctype html
+html(lang="pt-br")
+  include components/head.pug
+  body
+    style
+      include styles/home.css
+
+    include components/header.pug
+
+    div
+      div(class="buttons")
+        button(id="start") Iniciar
+        button(id="clear") Limpar
+        button(id="reset") Resetar
+
+      input(type="text", placeholder="Insira as notas separadas por espaço")
+
+    main
+      ul
+
+    script(src="/socket.io/socket.io.js")
+    script
+      include scripts/home.js

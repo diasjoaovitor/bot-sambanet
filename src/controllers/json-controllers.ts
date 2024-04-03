@@ -1,5 +1,5 @@
-import { getUnregisteredProducts } from '@/utils'
 import type { Request, Response } from 'express'
+import { getUnregisteredProducts } from '@/utils'
 
 export async function getUnregisteredProductsController(
   _: Request,

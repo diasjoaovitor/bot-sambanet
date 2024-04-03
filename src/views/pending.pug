@@ -1,0 +1,16 @@
+doctype html
+html(lang="pt-br")
+  include components/head.pug
+  body
+    style
+      include styles/list.css
+
+    include components/header.pug
+
+    main
+      p(id="total")
+      ul
+
+    script
+      include scripts/functions/index.js
+      include scripts/pending.js

@@ -7,6 +7,20 @@ const reset = document.getElementById('reset')
 
 const notes = document.querySelector('input')
 
+const getStorage = () => JSON.parse(localStorage.getItem('bot_sambanet')) || []
+
+const setStorage = (data) => {
+  localStorage.setItem('bot_sambanet', JSON.stringify(data))
+}
+
+let logs = getStorage()
+
+const clearAll = () => {
+  setStorage([])
+  logs = []
+  ul.innerHTML = ''
+}
+
 const disableButtons = () => {
   !start.hasAttribute('disabled') && start.setAttribute('disabled', true)
   !reset.hasAttribute('disabled') && reset.setAttribute('disabled', true)
@@ -18,6 +32,7 @@ const removeDisable = () => {
 }
 
 const render = (msg) => {
+  if (!msg) return
   const [text, link] = msg.split('[')
   const li = document.createElement('li')
   li.innerHTML = !link
@@ -29,21 +44,29 @@ const render = (msg) => {
 }
 
 start.onclick = () => {
+  clearAll()
   disableButtons()
   socket.emit('script', !notes.value ? 'start' : notes.value)
 }
 
 clear.onclick = () => {
-  ul.innerHTML = ''
+  clearAll()
 }
 
 reset.onclick = () => {
+  clearAll()
   disableButtons()
   socket.emit('script', 'reset')
 }
 
+logs.forEach((log) => {
+  render(log)
+})
+
 socket.on('log', (msg) => {
   disableButtons()
+  logs.push(msg)
+  setStorage(logs)
   render(msg)
   if (
     msg === 'Execução finalizada!' ||
