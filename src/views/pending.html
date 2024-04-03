@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Samb@net</title>
     <link rel="stylesheet" href="styles/style.css" />
-    <link rel="stylesheet" href="styles/home.css" />
+    <link rel="stylesheet" href="styles/associated-products.css" />
   </head>
+
   <body>
     <header>
       <h1>Bot Samb@net</h1>
@@ -27,19 +28,11 @@
         <span>|</span>
         <a href="pending.html">Pendentes</a>
       </div>
-      <div class="buttons">
-        <button id="start">Iniciar</button>
-        <button id="clear">Limpar</button>
-        <button id="reset">Resetar</button>
-      </div>
-      <div>
-        <input type="text" placeholder="Insira as notas separadas por espaço" />
-      </div>
     </div>
     <main>
+      <p id="total"></p>
       <ul></ul>
     </main>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="scripts/home.js"></script>
+    <script src="scripts/pending.js"></script>
   </body>
 </html>
