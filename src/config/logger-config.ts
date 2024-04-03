@@ -1,9 +1,9 @@
 import { createLogger, format, transports } from 'winston'
 
-const { combine, errors, json, timestamp, prettyPrint } = format
+const { combine, errors, json, timestamp } = format
 
 export const logger = createLogger({
   level: 'info',
-  format: combine(errors({ stack: true }), timestamp(), json(), prettyPrint()),
+  format: combine(errors({ stack: true }), timestamp(), json()),
   transports: [new transports.File({ filename: 'app.log' })]
 })
