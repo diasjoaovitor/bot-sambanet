@@ -39,7 +39,7 @@ export async function loginAndNavigateToEstoque() {
         throw new Error('Insira as credenciais de acesso no arquivo .env')
       }
       const startData = await start(url || '')
-      if (!startData) return
+      if (!startData) throw new Error('Start data is undefined')
 
       const { browser, page } = startData
 
@@ -50,14 +50,14 @@ export async function loginAndNavigateToEstoque() {
         user,
         password
       })
-      if (!dashboard) return
+      if (!dashboard) throw new Error('Dashboard page is undefined')
 
       const dashboardHTML = await dashboard.content()
       const estoqueURL = getEstoqueURL(dashboardHTML)
       if (!estoqueURL) throw new Error('URL de Estoque não encontrada!')
 
       const estoque = await navigateToEstoque(browser, estoqueURL)
-      if (!estoque) return
+      if (!estoque) throw new Error('Estoque page is undefined')
 
       return { estoque, browser }
     } catch (error) {
@@ -82,17 +82,17 @@ export async function getAllPendingNotes(estoque: Page, browser: Browser) {
       if (!entradaNfURL) throw new Error('URL de Entrada NF não encontrada!')
 
       const entradaNF = await navigateToEntradaNf(browser, entradaNfURL)
-      if (!entradaNF) return
+      if (!entradaNF) throw new Error('Entrada NF page is undefined')
 
       await getPendingNotes(entradaNF)
 
       await selectNumberOfItemsPerPage(entradaNF)
 
       let page = 1
-      const rPendentes = await getPendingNotesOnThePage(entradaNF, page)
-      if (!rPendentes) return
+      const pendingData = await getPendingNotesOnThePage(entradaNF, page)
+      if (!pendingData) throw new Error('Pending notes data is undefined')
 
-      const { nfs: n, nextPageId: id } = rPendentes
+      const { nfs: n, nextPageId: id } = pendingData
 
       const nfs = [...n]
 
@@ -100,10 +100,10 @@ export async function getAllPendingNotes(estoque: Page, browser: Browser) {
       while (nextPageId) {
         page++
         await navigateToNextPage(entradaNF, nextPageId)
-        const rPendentes = await getPendingNotesOnThePage(entradaNF, page)
-        if (!rPendentes) return
+        const pendingData = await getPendingNotesOnThePage(entradaNF, page)
+        if (!pendingData) throw new Error('Pending notes data is undefined')
 
-        const { nfs: n, nextPageId: id } = rPendentes
+        const { nfs: n, nextPageId: id } = pendingData
 
         nfs.push(...n)
         nextPageId = id
@@ -138,7 +138,7 @@ export async function startActions(nfs: TNote[], browser: Browser) {
       const { description, code } = nf
 
       const itensNfData = await navigateToItensDaNF(code, browser)
-      if (!itensNfData) return
+      if (!itensNfData) throw new Error('Itens NF data is undefined')
 
       const { itensNf, itensNfURL } = itensNfData
       const descriptionDaNF = `${i + 1}  - ${description} [${itensNfURL}]`
@@ -152,7 +152,7 @@ export async function startActions(nfs: TNote[], browser: Browser) {
       await selectNumberOfItemsPerPage(itensNf)
 
       const unassociatedData = await getUnassociatedProducts(itensNf)
-      if (!unassociatedData) return
+      if (!unassociatedData) throw new Error('Unassociated data is undefined')
 
       const { products: unassociated, nextPageId: id } = unassociatedData
       let products = [...unassociated]
@@ -166,7 +166,8 @@ export async function startActions(nfs: TNote[], browser: Browser) {
           await navigateToNextPage(itensNf, nextPageId)
 
           const unassociatedData = await getUnassociatedProducts(itensNf)
-          if (!unassociatedData) return
+          if (!unassociatedData)
+            throw new Error('Unassociated data is undefined')
 
           const { products: unassociated, nextPageId: id } = unassociatedData
           products = [...unassociated]

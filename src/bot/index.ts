@@ -20,13 +20,13 @@ export async function bot({ option }: { option: string }) {
     await clearUnregisteredProduct()
 
     const estoqueData = await loginAndNavigateToEstoque()
-    if (!estoqueData) return
+    if (!estoqueData) throw new Error('Estoque data is undefined')
 
     const { estoque, browser: b } = estoqueData
     browser = b
 
     const pendingNotesData = await getAllPendingNotes(estoque, browser)
-    if (!pendingNotesData) return
+    if (!pendingNotesData) throw new Error('Pending notes data is undefined')
 
     const { browser: b2, nfs } = pendingNotesData
     browser = b2
