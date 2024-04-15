@@ -192,7 +192,7 @@ export async function getUnassociatedProducts(page: Page) {
         })
       })
       let nextPageId = null
-      const pages = document.querySelectorAll('.pagetion')
+      const pages = document.querySelectorAll('.pagination')
       pages.forEach((page) => {
         if (page.textContent === 'Próximo') nextPageId = page.id
       })

@@ -28,7 +28,7 @@ const formatData = (data) => {
 const renderData = (data) => {
   ul.innerHTML = ''
   total.innerHTML = `
-    <strong>Total de produtos associados: </strong> ${data.length}
+    <strong>Total de produtos: </strong> ${data.length}
   `
   const d = formatData(sortData(data))
   d.forEach(({ note, products }) => {
