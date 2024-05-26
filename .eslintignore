@@ -1,2 +1,6 @@
 !.jest
 generators
+dist
+.eslintrc.cjs
+tailwind.config.js
+postcss.config.js

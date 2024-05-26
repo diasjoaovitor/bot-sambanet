@@ -1,3 +1,5 @@
+/* eslint no-undef: "off" */
+
 const socket = io()
 const ul = document.querySelector('ul')
 
@@ -18,7 +20,7 @@ let logs = getStorage()
 const clearAll = () => {
   setStorage([])
   logs = []
-  ul.innerHTML = ''
+  ul.innerHTML = '<li>Painel de logs</li>'
 }
 
 const disableButtons = () => {
@@ -39,12 +41,12 @@ const render = (msg) => {
     ? text
     : `<a href="${link.replace(']', '')}" target="_blank">${text}</a>`
   ul.appendChild(li)
-  const main = document.querySelector('main')
-  main.scrollTop = ul.clientHeight
+  ul.scrollTop = ul.clientHeight
 }
 
 start.onclick = () => {
   clearAll()
+  ul.innerHTML = ''
   disableButtons()
   socket.emit('script', !notes.value ? 'start' : notes.value)
 }
@@ -70,7 +72,7 @@ socket.on('log', (msg) => {
   render(msg)
   if (
     msg === 'Execução finalizada!' ||
-    msg === 'Error: Não foi possível finalizar!'
+    msg === 'Algo deu Errado! Não foi possível finalizar'
   ) {
     removeDisable()
   }

@@ -1,22 +1,22 @@
-export type TData = {
+export interface TData {
   note: string
   product: string
 }
 
-export type TProduct = {
+export interface TProduct {
   id: string
   name: string
   bar: string
   xmlBar: string
 }
 
-export type TNote = {
+export interface TNote {
   description: string
   code: string
   number: string
 }
 
-export type TReport = {
+export interface TReport {
   nf: string
   products: string[]
 }

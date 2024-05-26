@@ -1,23 +1,20 @@
-doctype html
-html(lang="pt-br")
-  include components/head.pug
-  body
-    style
-      include styles/home.css
+extends components/layout.pug
 
-    include components/header.pug
+block content
+  div(class="w-full max-w-md mx-auto")
+    div(class="grid grid-cols-3 gap-2 [&>button]:btn-primary")
+      button#start Iniciar
+      button#clear Limpar
+      button#reset Resetar
+    input(
+      type="text",
+      class="w-full text-field mt-2",
+      placeholder="Insira as notas separadas por espaço"
+    )
+  ul(
+    class="paper flex-1 mt-4 [&>li]:border-b [&>li]:border-gray-500 overflow-y-auto scrollbar-thin scrollbar-thumb-violet-700 scrollbar-track-zinc-900 pr-2"
+  )
+    li Painel de logs
 
-    div
-      div(class="buttons")
-        button(id="start") Iniciar
-        button(id="clear") Limpar
-        button(id="reset") Resetar
-
-      input(type="text", placeholder="Insira as notas separadas por espaço")
-
-    main
-      ul
-
-    script(src="/socket.io/socket.io.js")
-    script
-      include scripts/home.js
+  script(src="/socket.io/socket.io.js")
+  script(src="scripts/home.js")
