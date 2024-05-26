@@ -57,6 +57,7 @@ clear.onclick = () => {
 
 reset.onclick = () => {
   clearAll()
+  ul.innerHTML = ''
   disableButtons()
   socket.emit('script', 'reset')
 }
