@@ -1,5 +1,5 @@
 import '../config/alias-config'
-import type { Browser } from 'puppeteer'
+import { type Browser } from 'puppeteer'
 import {
   clearFinishedNotes,
   clearUnregisteredProduct,
