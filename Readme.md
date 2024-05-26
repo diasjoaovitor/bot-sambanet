@@ -4,10 +4,12 @@ Script desenvolvido para automatizar a associação de produtos durante o lança
 
 ## Tecnologias
 
-- [Puppeteer](https://pptr.dev/)
 - [Express](https://expressjs.com/pt-br/)
-- [Socket.io](https://socket.io/)
 - [MongoDB Atlas](https://www.mongodb.com/pt-br/cloud/atlas)
+- [Pug](https://pugjs.org/api/getting-started.html)
+- [Puppeteer](https://pptr.dev/)
+- [Socket.io](https://socket.io/)
+- [Tailwindcss](https://tailwindcss.com/)
 - [Wiston](https://github.com/winstonjs/winston)
 
 ## Descrição dos Eventos
@@ -40,7 +42,7 @@ O script irá navegar para a próxima página até concluir a busca de todas as 
 
 ![Janela do produto a ser associado](./.github/images/produto-a-associar-janela.png)
 
-![Janela do roduto associado](./.github/images/produto-associado.png)
+![Janela do produto associado](./.github/images/produto-associado.png)
 
 ![Produto associado](./.github/images/produto-associado-verde.png)
 
@@ -81,12 +83,12 @@ MONGO_URI=
 ### Execução
 
 ```
-npm start
+npm run dev
 
-Acesse: http://localhost:5000
+Acesse: http://localhost:3001
 ```
 
-![Home](./.github/images//home.PNG)
+![Home](./.github/images//home.png)
 
 Ao iniciar pela primeira vez, o script irá percorrer todas as notas pendentes, e irá salvar as notas que estão com todos os produtos associados no arquivo `nfs-finalizadas.txt`
 
@@ -102,6 +104,14 @@ Sempre que o usuário clicar em `Iniciar`, o script irá ignorar todas as notas 
 Caso deseje percorrer todas as notas, basta clicar em `Resetar`
 
 ![Preview](./.github/images/preview.gif)
+
+Todos os produtos associados são salvos no banco de dados, e podem ser consultados na tela mostrada abaixo:
+
+![Produtos Associados](./.github/images/associados.png)
+
+Já os produtos não cadastrados são salvos em um arquivo `txt`, que é sobrescrito a cada execução. A tela abaixo mostra todos os produtos não cadastrados ao final de uma varredura completa:
+
+![Produtos Associados](./.github/images/pendentes.png)
 
 ## Logs
 
@@ -275,34 +285,4 @@ Todos os logs ficam salvos no arquivo `app.log`:
   timestamp: '2024-03-26T19:40:10.249Z'
 }
 
-```
-
-O aquivo `nao-cadastrados.json` é sobrescrito a cada execução, e é útil para identificar os produtos que ainda faltam cadastrar
-
-```json
-[
-  {
-    "note": "1  - 1368569 - CASA PADIM ATAC. DIST. DE ALIM LTDA [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=5123]",
-    "product": "1 - FARINHA MANDIOCA PADIM AMARELA 1KG - 7898902334377",
-    "createdAt": "2024-03-26T19:07:44.252Z"
-  },
-  {
-    "note": "2  - 505153 - ESTRELA DISTIBUICAO EIRELI [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=5122]",
-    "product": "1 - BISC GUNE MAXIMUS RECH MORANGO 100G - 618341475137",
-    "createdAt": "2024-03-26T19:08:21.048Z"
-  },
-  {
-    "note": "2  - 505153 - ESTRELA DISTIBUICAO EIRELI [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=5122]",
-    "product": "2 - BISC GUNE MAXIMUS RECH CHOCOLATE 100G - 618341475120",
-    "createdAt": "2024-03-26T19:08:46.324Z"
-  },
-  {
-    ...
-  },
-  {
-    "note": "34  - 611578 - ZARB DISTRIBUIDORA DO BRASIL LTDA [https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=4930]",
-    "product": "9 - GD CR PENT 1KG VITAMINA E QUINOA CX/12/UN QTD. 3.00 CX - 7897158727025",
-    "createdAt": "2024-03-26T19:39:00.965Z"
-  }
-]
 ```
