@@ -1,0 +1,27 @@
+doctype html
+html(lang="pt-br")
+  head
+    meta(http-equiv="Content-Type", content="text/html;charset=UTF-8")
+    meta(http-equiv="X-UA-Compatible", content="ie=edge")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Bot Samb@net
+    link(rel="stylesheet", href="/styles/main.css")
+  body(class="bg-black text-white p-4 h-screen flex flex-col items-center")
+    header(class="text-center max-w-screen-md")
+      h1(class="text-3xl font-bold mb-2") Bot Samb@net
+      p Bot para automatizar a associação de produtos durante o lançamento de Notas Fiscais utilizando o software
+        a(
+          href="https://getway.com.br/universo-sambanet/",
+          target="_blank",
+          class="underline text-violet-400 ml-1"
+        ) Samb@net
+      nav(class="text-center mt-2 mb-4")
+        a(href="/", class="underline") Home
+        span(class="mx-2") |
+        a(href="associated-products", class="underline") Associados
+        span(class="mx-2") |
+        a(href="pending", class="underline") Pendentes
+
+    main(class="w-full max-w-screen-md flex-1 flex flex-col overflow-y-auto")
+      block content
+    script(src="scripts/nav.js")

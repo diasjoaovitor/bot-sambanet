@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn-primary {
+    @apply py-2 px-5 bg-violet-500 font-semibold rounded enabled:hover:bg-violet-700 disabled:bg-zinc-500;
+  }
+
+  .text-field {
+    @apply py-2 px-5 text-black rounded outline-none border-2 focus:border-violet-700;
+  }
+
+  .paper {
+    @apply bg-zinc-900 p-4 rounded
+  }
+}

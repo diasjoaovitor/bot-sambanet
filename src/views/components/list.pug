@@ -1,0 +1,16 @@
+div(
+  class="paper flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-violet-700 scrollbar-track-zinc-900 pr-2"
+)
+  p(class="font-bold mb-4") Total de produtos: #{ total }
+  ul
+    each d in data
+      li(class="border rounded p-2 border-gray-500 mb-2")
+        h3(class="font-semibold mb-2")
+          a(href=d.note.href)= d.note.description
+        ul(class="mx-2")
+          each product, index in d.products
+            li
+              div= product.description
+              div(class="text-zinc-300")= product.createdAt
+              if d.products[index + 1]
+                hr(class="border-gray-500 mt-1 mb-2")
