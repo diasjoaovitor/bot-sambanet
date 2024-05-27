@@ -5,7 +5,7 @@ module.exports = {
     'standard-with-typescript',
     'prettier'
   ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  ignorePatterns: ['dist', '.eslintrc.cjs', 'node_modules'],
   parser: '@typescript-eslint/parser',
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',

@@ -8,15 +8,17 @@ export const home = async (_: Request, res: Response) => {
 
 export const associatedProducts = async (req: Request, res: Response) => {
   try {
-    const { params } = req
-    const { products, total } = await getAssociatedProducts(
-      parseInt(params.page1) || 1
-    )
+    const { page: p } = req.query
+    const limit = 100
+    const page = Number(p) || 1
+    const { products, total } = await getAssociatedProducts(page, limit)
     const data = formatAssociatedProducts(products)
+    const numberOfPages = Math.ceil(total / limit)
     res.render('associated', {
-      page: 1,
+      page,
       total,
-      data
+      data,
+      numberOfPages
     })
   } catch (error) {
     res.status(500).json(error)

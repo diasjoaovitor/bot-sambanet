@@ -1,9 +1,8 @@
 import type { Browser, Page } from 'puppeteer'
 import dotenv from 'dotenv'
-import type { TNote, TReport } from '../types'
-import { type TDataDB, saveAssociatedProductInDB } from '@/db'
-import { logger } from '@/config'
+import { type TDataDB, logger } from '@/config'
 import { print, saveFinishedNote, saveUnregisteredProduct } from '@/utils'
+import { saveAssociatedProductInDB } from '@/models'
 import {
   associateProduct,
   getPendingNotes,
@@ -17,6 +16,7 @@ import {
   selectNumberOfItemsPerPage,
   start
 } from './steps'
+import type { TNote, TReport } from '../types'
 import { getEntradaNfURL, getEstoqueURL } from './regex'
 
 dotenv.config()
