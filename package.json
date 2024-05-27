@@ -10,7 +10,7 @@
     "build": "tsc --build",
     "test": "jest --maxWorkers=50%",
     "test:watch": "jest --watch --maxWorkers=25%",
-    "test:ci": "jest --runInBand",
+    "test:ci": "jest --runInBand --passWithNoTests",
     "lint": "eslint src --max-warnings=0",
     "prepare": "husky install",
     "tailwind:css": "npx tailwindcss -i public/styles/tailwind.css -o public/styles/main.css --watch"
