@@ -2,8 +2,8 @@
 
 const links = document.querySelectorAll('nav a')
 
-const { href } = window.location
+const { origin, pathname } = window.location
 
 links.forEach((link) => {
-  link.href === href && link.classList.add('text-violet-400')
+  link.href === origin + pathname && link.classList.add('text-violet-400')
 })
