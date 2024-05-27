@@ -2,3 +2,15 @@ extends components/layout.pug
 
 block content
   include components/list.pug
+  div(class="flex justify-between mt-2 text-violet-400")
+    if page == 1
+      button(disabled class="text-zinc-500") Anterior
+    else
+      a(href="/associated-products?page=" + (page - 1)) Anterior
+
+    p=page+'/'+numberOfPages
+
+    if page == numberOfPages
+      button(disabled class="text-zinc-500") Próximo
+    else
+      a(href="/associated-products?page=" + (page * 1 + 1)) Próximo

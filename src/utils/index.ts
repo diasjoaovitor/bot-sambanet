@@ -1,7 +1,6 @@
 import dayjs from 'dayjs'
 import fs, { promises as pfs } from 'fs'
-import { io, logger } from '@/config'
-import { type TDataDB } from '@/db'
+import { type TDataDB, io, logger } from '@/config'
 import { type TNote } from '@/bot/types'
 import 'dayjs/locale/pt-br'
 
