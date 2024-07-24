@@ -1,6 +1,6 @@
 import { type Request, type Response } from 'express'
 import { formatAssociatedProducts, getUnregisteredProducts } from '@/utils'
-import { getAssociatedProducts } from '@/models'
+import { getAssociatedProducts } from '@/database'
 
 export const home = async (_: Request, res: Response) => {
   res.render('index')

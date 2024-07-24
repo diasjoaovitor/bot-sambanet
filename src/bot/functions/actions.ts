@@ -2,7 +2,7 @@ import type { Browser, Page } from 'puppeteer'
 import dotenv from 'dotenv'
 import { type TDataDB, logger } from '@/config'
 import { print, saveFinishedNote, saveUnregisteredProduct } from '@/utils'
-import { saveAssociatedProductInDB } from '@/models'
+import { saveAssociatedProductInDB } from '@/database'
 import {
   associateProduct,
   getPendingNotes,
