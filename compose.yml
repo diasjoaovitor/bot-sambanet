@@ -1,0 +1,11 @@
+services:
+  bot-sambanet:
+    build: .
+    ports:
+      - '3001:3001'
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production

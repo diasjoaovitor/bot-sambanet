@@ -1,23 +1,21 @@
 {
   "compilerOptions": {
+    "composite": true,
     "target": "ESNext",
     "module": "CommonJS",
+    "skipLibCheck": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "strict": true,
     "outDir": "dist",
     "removeComments": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
     "baseUrl": "src",
     "paths": {
       "@/*": ["*"]
     }
   },
-  "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node",
-    "transpileOnly": true
-  }
+  "include": ["src"]
 }

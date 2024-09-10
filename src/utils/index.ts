@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import path from 'path'
 import fs, { promises as pfs } from 'fs'
 import { type TDataDB, io, logger } from '@/config'
 import { type TNote } from '@/bot/types'
@@ -6,8 +7,9 @@ import 'dayjs/locale/pt-br'
 
 dayjs.locale('pt-br')
 
-const notesFileName = 'nfs-finalizadas.txt'
-const unregisteredFileName = 'nao-cadastrados.json'
+const basePath = path.resolve(__dirname, '..', '..', 'data')
+const notesFileName = path.join(basePath, 'nfs-finalizadas.txt')
+const unregisteredFileName = path.join(basePath, 'nao-cadastrados.json')
 
 async function salveJson(fileName: string, content: TDataDB) {
   if (fs.existsSync(fileName)) {

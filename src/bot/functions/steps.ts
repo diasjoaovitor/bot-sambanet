@@ -7,7 +7,10 @@ import type { TNote, TProduct } from '../types'
 export async function start(url: string) {
   try {
     print('Iniciando...')
-    const browser = await puppeteer.launch({ headless: 'shell' })
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox']
+    })
     const page = await browser.newPage()
     await page.goto(url)
     return { browser, page }

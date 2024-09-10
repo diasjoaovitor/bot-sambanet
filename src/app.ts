@@ -1,3 +1,4 @@
+import './config/alias-config'
 import { bot } from './bot'
 import { dbConnection, io, server } from './config'
 import { print } from './utils'

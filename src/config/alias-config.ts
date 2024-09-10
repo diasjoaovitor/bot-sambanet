@@ -1,4 +1,8 @@
 import { addAlias } from 'module-alias'
 import { resolve } from 'path'
 
-addAlias('@', resolve('src'))
+const env = process.env.NODE_ENV
+
+const basePath = env === 'production' ? 'dist/src' : 'src'
+
+addAlias('@', resolve(basePath))

@@ -1,9 +1,8 @@
 export default {
   preset: 'ts-jest',
   testRegex: '((\\.|/*.)(test))\\.ts?$',
-  collectCoverageFrom: ['<rootDir>/src/**/*.ts', '!<rootDir>/src/**/index.ts'],
-  coverageDirectory: 'coverage',
   modulePaths: ['<rootDir>/src/'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
   }

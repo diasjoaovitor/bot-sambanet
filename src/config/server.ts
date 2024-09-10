@@ -10,7 +10,10 @@ const app = express()
 app.set('views', join(__dirname, '..', 'views'))
 app.set('view engine', 'pug')
 
-app.use(express.static(join(__dirname, '..', '..', 'public')))
+const env = process.env.NODE_ENV
+const basePath = env === 'production' ? '../public' : 'public'
+
+app.use(express.static(join(__dirname, '..', '..', basePath)))
 app.use(express.json())
 app.use(cors())
 app.use(router)
