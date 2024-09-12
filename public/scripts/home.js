@@ -9,6 +9,8 @@ const reset = document.getElementById('reset')
 
 const notes = document.querySelector('input')
 
+let height = 0
+
 const getStorage = () => JSON.parse(localStorage.getItem('bot_sambanet')) || []
 
 const setStorage = (data) => {
@@ -21,6 +23,7 @@ const clearAll = () => {
   setStorage([])
   logs = []
   ul.innerHTML = '<li>Painel de logs</li>'
+  height = 0
 }
 
 const disableButtons = () => {
@@ -41,7 +44,8 @@ const render = (msg) => {
     ? text
     : `<a href="${link.replace(']', '')}" target="_blank">${text}</a>`
   ul.appendChild(li)
-  ul.scrollTop = ul.clientHeight
+  height += li.clientHeight
+  ul.scrollTop = height
 }
 
 start.onclick = () => {
