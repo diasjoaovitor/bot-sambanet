@@ -1,5 +1,6 @@
 services:
-  bot-sambanet:
+  app:
+    container_name: bot
     build: .
     ports:
       - '3001:3001'
