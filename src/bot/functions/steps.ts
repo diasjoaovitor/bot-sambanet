@@ -152,7 +152,7 @@ export async function navigateToNextPage(page: Page, nextPageId: string) {
 }
 
 export async function navigateToItensDaNF(code: string, browser: Browser) {
-  const itensNfURL = `https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=${code}`
+  const itensNfURL = `https://www.sambanet.net.br/sambanet/estoque2/Forms/EntradaNFItensRM.aspx?nf=${code}`
   try {
     const itensNf = await browser.newPage()
     await itensNf.goto(itensNfURL)
