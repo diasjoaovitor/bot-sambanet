@@ -3,6 +3,7 @@ import puppeteer from 'puppeteer'
 import { logger } from '@/config'
 import { delay, print } from '@/utils'
 import type { TNote, TProduct } from '../types'
+import { estoquePath } from '../constants'
 
 export async function start(url: string) {
   try {
@@ -152,7 +153,7 @@ export async function navigateToNextPage(page: Page, nextPageId: string) {
 }
 
 export async function navigateToItensDaNF(code: string, browser: Browser) {
-  const itensNfURL = `https://www.sambanet.net.br/sambanet/estoque/Forms/EntradaNFItensRM.aspx?nf=${code}`
+  const itensNfURL = `https://www.sambanet.net.br/sambanet/${estoquePath}/Forms/EntradaNFItensRM.aspx?nf=${code}`
   try {
     const itensNf = await browser.newPage()
     await itensNf.goto(itensNfURL)

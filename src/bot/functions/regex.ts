@@ -1,3 +1,5 @@
+import { estoquePath } from '../constants'
+
 export function getEstoqueURL(html: string) {
   const result = html.match(
     /(?<=href=")https:\/\/www.sambanet.net.br\/sambanet\/estoque.+(?===".+demo)/
@@ -11,6 +13,6 @@ export function getEntradaNfURL(html: string) {
   const result = html.match(/(?<=href=")EntradaNfRM.+(?=" title.+tabindex)/)
   if (!result) return null
   const [href] = result
-  const url = 'https://www.sambanet.net.br/sambanet/estoque/Forms/' + href
+  const url = `https://www.sambanet.net.br/sambanet/${estoquePath}/Forms/${href}`
   return url
 }
